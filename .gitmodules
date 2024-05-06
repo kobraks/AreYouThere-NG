@@ -1,0 +1,15 @@
+[submodule "Vendor/rapidcsv"]
+	path = Vendor/rapidcsv
+	url = https://github.com/d99kris/rapidcsv
+[submodule "Vendor/spdlog"]
+	path = Vendor/spdlog
+	url = https://github.com/kobraks/spdlog
+[submodule "Vendor/fmt"]
+	path = Vendor/fmt
+	url = https://github.com/kobraks/fmt
+[submodule "Vendor/binary_io"]
+	path = Vendor/binary_io
+	url = https://github.com/kobraks/binary_io
+[submodule "Vendor/CommonLibSSE-NG"]
+	path = Vendor/CommonLibSSE-NG
+	url = https://github.com/kobraks/CommonLibSSE-NG

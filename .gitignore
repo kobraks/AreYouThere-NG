@@ -1,0 +1,16 @@
+#ignore bins
+**/bin/
+bin-int/
+Intermediates/
+
+#log files
+*.log
+
+#VS files
+.vs/
+**.sln
+**.sln.*
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+**.csproj
