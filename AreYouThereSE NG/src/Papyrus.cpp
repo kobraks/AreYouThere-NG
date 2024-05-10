@@ -211,7 +211,7 @@ namespace BeinzPlugin {
 	}
 
 	RE::BSTArray<RE::Actor*> FindCharactersByNameActors(RE::StaticFunctionTag *, uint32_t searchIndex) {
-		const auto &actors = FindCharacter::GetInstance()->GetCache()[searchIndex];
+		const auto &actors = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
 		SPDLOG_TRACE("Recived: {}, At: {}", actors.size(), searchIndex);
 
 		RE::BSTArray<RE::Actor*> ret;
@@ -269,7 +269,7 @@ namespace BeinzPlugin {
 		     actors.begin(),
 		     actors.end(),
 		     std::back_inserter(ret),
-		     [](const ActorSearchResult &res) { return res.ModIndex; }
+		     [](const ActorSearchResult &res) { return static_cast<uint32_t>(res.ModIndex); }
 		    );
 
 		return ret;
