@@ -1,7 +1,7 @@
 scriptName BeinzPluginScript Hidden
 
 ;Initialize mod lists
-int Function InitMods() global native
+bool Function InitMods() global native
 
 ;Get installed mod count 
 int Function GetTotalModCount() global native

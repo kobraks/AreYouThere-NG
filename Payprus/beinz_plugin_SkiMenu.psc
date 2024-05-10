@@ -20,6 +20,7 @@ int MCMPage_Ligh = 4
 int MCMPage_Find = 5
 
 bool hideVal
+bool m_Inited = false
 
 int m_ActorsPageMax = 110
 int m_ActorsPerPage = 100
@@ -78,7 +79,7 @@ string[] m_ModNames
 Actor[] m_ActorsFound
 
 string[] m_FoundPages
-string[] m_FoundPagesCopy
+string[] m_FoundPagesDefault
 
 int m_FoundPageCount = 0
 int m_FoundPage = 0
@@ -204,11 +205,15 @@ event OnConfigInit()
 	m_FoundPages = new string[1]
 	m_FoundPages[0] = "Empty"
 
-	m_FoundPagesCopy = m_FoundPages
+	m_FoundPagesDefault = m_FoundPages
 EndEvent
 
 event OnVersionUpdate(int version)
 	OnConfigInit()
+endEvent
+
+event OnGameReload()
+	m_Inited = false
 endEvent
 
 
@@ -217,9 +222,7 @@ event OnPageReset(string page)
 	if (Pages[MCMPage_Mods] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		if (m_ActorCount == 0)
-			self.ShowMessage("Do Init First", false)
-		else
+		if (m_Inited)
 			AddTextOption("Total Mods: " + m_ModCount + "\tbaseNPCs/Actors", "", OPTION_FLAG_DISABLED)
 			AddHeaderOption("")
 
@@ -266,13 +269,13 @@ event OnPageReset(string page)
 					AddHeaderOption("")
 				Endif
 			EndIf
+		else
+			self.ShowMessage("Do Init First", false)
 		endif
 	ElseIf (Pages[MCMPage_Acto] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		If (m_ActorCount == 0 || m_SelectedMod < 0)
-			self.ShowMessage("Do 1 Init -> 2 Select Mods", false)
-		Else
+		If (m_Inited && m_SelectedMod >= 0)
 			int modIndex = m_SelectedMod % m_ModsPerPage
 			AddTextOption(m_ModNames[modIndex], m_ModActorCounts[modIndex], OPTION_FLAG_DISABLED)
 			AddHeaderOption("")
@@ -309,13 +312,13 @@ event OnPageReset(string page)
 				m_IdTextActorsPages = AddMenuOption("Page (100Actors/page)", m_ActorPages[m_ActorsPage], 0)
 				AddHeaderOption("")
 			EndIf
+		Else
+			self.ShowMessage("Do 1 Init -> 2 Select Mods", false)
 		EndIf
 	ElseIf (Pages[MCMPage_Base] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		If (m_ActorCount == 0 || m_SelectedMod < 0)
-			self.ShowMessage("Do 1 Init -> 2 Select Mods", false)
-		Else
+		If (m_Inited && m_SelectedMod >= 0)
 			int modIndex = m_SelectedMod % m_ModsPerPage
 			
 			AddTextOption(m_ModNames[modIndex], m_ModNPCCounts[modIndex], OPTION_FLAG_DISABLED)
@@ -352,6 +355,8 @@ event OnPageReset(string page)
 				m_IdTextNPCsPages = AddMenuOption("Page (100Actors/page)", m_NPCPages[m_NPCPage], 0)
 				AddHeaderOption("")
 			EndIf
+		Else
+			self.ShowMessage("Do 1 Init -> 2 Select Mods", false)
 		EndIf
 	ElseIf (Pages[MCMPage_Ligh] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
@@ -408,9 +413,7 @@ event OnPageReset(string page)
 	ElseIf (Pages[MCMPage_Find] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		if (m_ActorCount == 0)
-			self.ShowMessage("Do Init First", false)
-		else
+		if (m_Inited)
 			AddInputOptionST("SearchST", "Actor Name: ", m_LastSearched)
 			m_IdTextFound = AddTextOption("Found: " + m_EntriesFound, "", 0)
 			AddHeaderOption("")
@@ -455,14 +458,16 @@ event OnPageReset(string page)
 				AddTextOptionST("ClearCacheST", "", "Clear Cache", 0)
 				AddHeaderOption("")
 			EndIf
+		Else
+			self.ShowMessage("Do Init First", false)
 		EndIf
 	else
 		SetCursorFillMode(TOP_TO_BOTTOM)
 		m_ActorCount = BeinzPluginScript.GetTotalActors()
-		if (m_ActorCount == 0)
-			AddTextOptionST("InitST", "Init - Do first please", "Do Init")
-		else
+		if (m_Inited)
 			AddTextOptionST("InitSt", "Inited", "Re-init?")
+		else
+			AddTextOptionST("InitST", "Init - Do first please", "Do Init")
 		endif
 
 		SetCursorPosition(1)
@@ -675,21 +680,27 @@ State InitST
 		SetOptionFlagsST(OPTION_FLAG_DISABLED)
 		SetTextOptionValueST("Processing...")
 
-		m_ActorCount = BeinzPluginScript.InitMods()
-		m_NPCCount = BeinzPluginScript.GetTotalNPCs()
-		m_ModCount = BeinzPluginScript.GetTotalModCount()
+		m_Inited = einzPluginScript.InitMods()
+		if (m_Inited)
+			m_ActorCount = BeinzPluginScript.GetTotalActors()
+			m_NPCCount = BeinzPluginScript.GetTotalNPCs()
+			m_ModCount = BeinzPluginScript.GetTotalModCount()
 
-		m_SelectedMod = -1
-		if (m_ActorCount >= 65536)
-			self.ShowMessage("Too many Actors (plz report to modder) : " + m_actorCount, false)
-			Debug.trace("AreYouThere: Too many Actors (plz report to modder): " + m_actorCount, 2)
+			m_SelectedMod = -1
+			if (m_ActorCount >= 65536)
+				self.ShowMessage("Too many Actors (plz report to modder) : " + m_actorCount, false)
+				Debug.trace("AreYouThere: Too many Actors (plz report to modder): " + m_actorCount, 2)
+			else
+				Debug.trace("AreYouThere: Total Actors: " + m_actorCount + "\nTotal Base NPCs: " + m_NPCCount + "\nTotal Mods: " + m_ModCount)
+				self.ShowMessage("Total Actors : " + m_actorCount + "\nTotal Base NPCs : " + m_NPCCount + "\nTotal Mods : " + m_ModCount, false)
+			endif
+
+			m_ModPages = BeinzPluginScript.GenerateModPages()
+			Debug.trace("Mod pages count: " + m_ModPages.Length)
 		else
-			Debug.trace("AreYouThere: Total Actors: " + m_actorCount + "\nTotal Base NPCs: " + m_NPCCount + "\nTotal Mods: " + m_ModCount)
-			self.ShowMessage("Total Actors : " + m_actorCount + "\nTotal Base NPCs : " + m_NPCCount + "\nTotal Mods : " + m_ModCount, false)
+			self.ShowMessage("Something went wrong unable to initialize mod list (plz report to mod author)")
+			Debug.trace("AreYouThere: Unable to InitMods returned false")
 		endif
-
-		m_ModPages = BeinzPluginScript.GenerateModPages()
-		Debug.trace("Mod pages count: " + m_ModPages.Length)
 
 		ForcePageReset()
 	EndEvent
@@ -701,12 +712,12 @@ State SearchST
 		Debug.Trace("AreYouThere: Looking For " + value)
 
 		m_ActorsFound = BeinzPluginScript.FindCharactersByName(m_LastSearched)
-		m_EntriesFound = BeinzPluginScript.FindCharactersByNameCount(m_LastSearched) ;TODO remove this variable
+		m_EntriesFound = Bm_ActorsFound.Length
 
 		m_FoundPage = 0
 
 		m_FoundPages = BeinzPluginScript.GenerateFoundPages(m_LastSearched)
-		m_FoundPageCount = BeinzPluginScript.GetGeneratedFoundPagesCount(m_LastSearched) ;TODO remove this variable
+		m_FoundPageCount = m_FoundPages.Length
 
 		self.SetInputOptionValueST(m_LastSearched)
 		self.SetTextOptionValue(m_IdTextFound, m_EntriesFound)
@@ -723,12 +734,12 @@ State ClearCacheST
 		m_LastSearched = ""
 		m_EntriesFound = 0
 
-		m_FoundPages = m_FoundPagesCopy
+		m_FoundPages = m_FoundPagesDefault
 		m_FoundPageCount = 0
 		m_FoundPage = 0
 
 		self.SetTextOptionValue(m_IdTextFound, 0)
-		self.SetTextOptionValueST("Cashe cleaned")
+		self.SetTextOptionValueST("Cache cleaned")
 
 		Debug.Trace("AreYouThere: Clearing Cache search results")
 
