@@ -18,7 +18,7 @@ namespace BeinzPlugin {
 	public:
 		static Plugin* GetInstance();
 
-		uint32_t InitMods();
+		bool InitMods();
 
 		size_t ActorCount = 0;
 		size_t NPCCount = 0;

@@ -14,7 +14,7 @@ namespace BeinzPlugin {
 		return &instance;
 	}
 
-	uint32_t Plugin::InitMods() {
+	bool Plugin::InitMods() {
 		SPDLOG_INFO("Initializing mod list");
 
 		const auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -28,7 +28,7 @@ namespace BeinzPlugin {
 		SPDLOG_INFO("Found {} Actor", ActorCount);
 		SPDLOG_INFO("Found {} ActorBases", NPCCount);
 
-		return static_cast<uint32_t>(ActorCount);
+		return !Mods.empty();
 	}
 
 	void Plugin::Clear() {

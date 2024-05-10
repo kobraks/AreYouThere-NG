@@ -4,23 +4,46 @@
 #include "Plugin.h"
 #include "Mod.h"
 
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 namespace BeinzPlugin {
-	ActorSearchResultTableT &FindCharacter::FindCharacters(const char *name) {
-		std::string sName = name;
+	ActorSearchResultTableT FindCharacter::m_Empty{};
 
+	size_t FindCharacter::FindCharacters(const char *name) {
+		std::string sName = name;
 		boost::trim(sName);
 		boost::to_upper(sName);
 
 		SPDLOG_INFO("Looking for: {}", sName);
 
-		if (const auto it = m_Cache.find(sName); it != m_Cache.end()) {
-			SPDLOG_INFO("Returing cached search results: {}", it->second.size());
+		if (const auto it = m_Results.find(sName); it != m_Results.end()) {
+			SPDLOG_INFO("Returing cached search result: {}", it->second);
 			return it->second;
 		}
 
-		return m_Cache.emplace(sName, Find(sName)).first->second;
+		m_Cache.emplace_back(Find(sName));
+
+		return m_Results.emplace(sName, m_Results.size() - 1).first->second;
+	}
+
+	const ActorSearchResultTableT & FindCharacter::GetSearchResult(size_t index) const {
+		if (index < m_Cache.size()) {
+			return m_Cache.at(index);
+		}
+
+		SPDLOG_ERROR("Provided invalid search result pointer: {}", index);
+
+		return m_Empty;
+	}
+
+	ActorSearchResultTableT & FindCharacter::GetSearchResult(size_t index) {
+		if (index < m_Cache.size())
+			return m_Cache.at(index);
+
+		SPDLOG_ERROR("Provided invalid search result pointer: {}", index);
+
+		return m_Empty;
 	}
 
 	FindCharacter * FindCharacter::GetInstance() {
@@ -31,6 +54,7 @@ namespace BeinzPlugin {
 
 	void FindCharacter::Clear() {
 		GetInstance()->m_Cache.clear();
+		GetInstance()->m_Results.clear();
 	}
 
 	ActorSearchResultTableT FindCharacter::Find(const std::string_view name) {

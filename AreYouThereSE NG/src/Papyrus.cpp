@@ -42,7 +42,7 @@ namespace {
 }
 
 namespace BeinzPlugin {
-	uint32_t InitMods(RE::StaticFunctionTag *) {
+	bool InitMods(RE::StaticFunctionTag *) {
 		return Plugin::GetInstance()->InitMods();
 	}
 
@@ -206,10 +206,13 @@ namespace BeinzPlugin {
 		return 0;
 	}
 
+	uint32_t FindCharactersByName(RE::StaticFunctionTag *, RE::BSFixedString name) {
+		return static_cast<uint32_t>(FindCharacter::GetInstance()->FindCharacters(name.c_str()));
+	}
 
-	RE::BSTArray<RE::Actor*> FindCharactersByName(RE::StaticFunctionTag *, RE::BSFixedString actorName) {
-		const auto &actors = FindCharacter::GetInstance()->FindCharacters(actorName.c_str());
-		SPDLOG_TRACE("Recived: {}", actors.size());
+	RE::BSTArray<RE::Actor*> FindCharactersByNameActors(RE::StaticFunctionTag *, uint32_t searchIndex) {
+		const auto &actors = FindCharacter::GetInstance()->GetCache()[searchIndex];
+		SPDLOG_TRACE("Recived: {}, At: {}", actors.size(), searchIndex);
 
 		RE::BSTArray<RE::Actor*> ret;
 		ret.reserve(static_cast<RE::BSTArray<RE::Actor*>::size_type>(actors.size()));
@@ -218,36 +221,29 @@ namespace BeinzPlugin {
 		     actors.begin(),
 		     actors.end(),
 		     std::back_inserter(ret),
-		     [](const ActorSearchResult &res) { return res.Actor->Form<RE::Actor*>(); }
+		     [](const ActorSearchResult &res) { return res.Actor->Form<RE::Actor>(); }
 		    );
 
 		return ret;
 	}
 
-	uint32_t FindCharactersByNameCount(RE::StaticFunctionTag *, RE::BSFixedString actorName) {
-		const auto &actors = FindCharacter::GetInstance()->FindCharacters(actorName.c_str());
-		SPDLOG_TRACE("Recived: {}", actors.size());
-
-		return static_cast<uint32_t>(actors.size());
-	}
-
 	RE::BSFixedString FindCharactersByNameModName(
 		RE::StaticFunctionTag *,
-		RE::BSFixedString actorName,
-		uint32_t index
+		uint32_t searchIndex,
+		uint32_t characterIndex
 		) {
-		const auto &actors = FindCharacter::GetInstance()->FindCharacters(actorName.c_str());
-		SPDLOG_TRACE("Recived: {}", actors.size());
+		const auto &actors = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
+		SPDLOG_TRACE("Recived: {}, At: {}", actors.size(), searchIndex);
 
-		if(index < actors.size())
-			return actors[index].Mod->Name().data();
+		if(characterIndex < actors.size())
+			return actors[characterIndex].Mod->Name().data();
 
 		return "";
 	}
 
-	RE::BSTArray<RE::BSFixedString> FindCharactersByNameModNames(RE::StaticFunctionTag *, RE::BSFixedString actorName) {
-		const auto &actors = FindCharacter::GetInstance()->FindCharacters(actorName.c_str());
-		SPDLOG_TRACE("Recived: {}", actors.size());
+	RE::BSTArray<RE::BSFixedString> FindCharactersByNameModNames(RE::StaticFunctionTag *, uint32_t searchIndex) {
+		const auto &actors = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
+		SPDLOG_TRACE("Recived: {}, At: {}", actors.size(), searchIndex);
 
 		RE::BSTArray<RE::BSFixedString> ret;
 		ret.reserve(static_cast<RE::BSTArray<RE::detail::BSFixedString<char>>::size_type>(actors.size()));
@@ -262,31 +258,26 @@ namespace BeinzPlugin {
 		return ret;
 	}
 
-	RE::BSTArray<uint32_t> FindCharactersByNameModIndices(RE::StaticFunctionTag *, RE::BSFixedString actorName) {
-		const auto &actors = FindCharacter::GetInstance()->FindCharacters(actorName.c_str());
-		SPDLOG_TRACE("Recived: {}", actors.size());
+	RE::BSTArray<uint32_t> FindCharactersByNameModIndices(RE::StaticFunctionTag*, int searchIndex) {
+		const auto &actors = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
+		SPDLOG_TRACE("Recived: {}, At: {}", actors.size(), searchIndex);
 
 		RE::BSTArray<uint32_t> ret;
-		ret.reserve(static_cast<RE::BSTArray<unsigned int>::size_type>(actors.size()));
+		ret.reserve(static_cast<RE::BSTArray<uint32_t>::size_type>(actors.size()));
 
 		Copy(
 		     actors.begin(),
 		     actors.end(),
 		     std::back_inserter(ret),
-		     [](const ActorSearchResult &res) { return static_cast<uint32_t>(res.ModIndex); }
+		     [](const ActorSearchResult &res) { return res.ModIndex; }
 		    );
 
 		return ret;
 	}
 
-	RE::BSTArray<RE::BSFixedString> GenerateFoundPages(RE::StaticFunctionTag *, RE::BSFixedString actorName) {
-		FoundActorPages::GetInstance()->Generate(actorName.c_str());
-		return FoundActorPages::GetInstance()->GetNames(actorName.c_str());
-	}
-
-	uint32_t GetGeneratedFoundPagesCount(RE::StaticFunctionTag *, RE::BSFixedString actorName) {
-		FoundActorPages::GetInstance()->Generate(actorName.c_str());
-		return static_cast<uint32_t>(FoundActorPages::GetInstance()->GetPages(actorName.c_str()).size());
+	RE::BSTArray<RE::BSFixedString> GenerateFoundPages(RE::StaticFunctionTag*, int searchIndex) {
+		FoundActorPages::GetInstance()->Generate(searchIndex);
+		return FoundActorPages::GetInstance()->GetNames(searchIndex);
 	}
 
 	void ClearSearchCache(RE::StaticFunctionTag *) {
@@ -327,14 +318,13 @@ namespace BeinzPlugin {
 		REGISTER_FUNCTION(ModIndexToHexString)
 
 		REGISTER_FUNCTION(FindCharactersByName)
-		REGISTER_FUNCTION(FindCharactersByNameCount)
+		REGISTER_FUNCTION(FindCharactersByNameActors)
 		REGISTER_FUNCTION(FindCharactersByNameModName)
 
 		REGISTER_FUNCTION(FindCharactersByNameModNames)
 		REGISTER_FUNCTION(FindCharactersByNameModIndices)
 
 		REGISTER_FUNCTION(GenerateFoundPages)
-		REGISTER_FUNCTION(GetGeneratedFoundPagesCount)
 		REGISTER_FUNCTION(ClearSearchCache)
 
 		REGISTER_FUNCTION(GetModFromActor)

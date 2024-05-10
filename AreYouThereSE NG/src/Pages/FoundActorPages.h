@@ -4,16 +4,15 @@
 namespace BeinzPlugin {
 	class FoundActorPages {
 	public:
-		std::unordered_map<std::string, std::vector<std::shared_ptr<FoundActorPage>>> Pages;
+		std::unordered_map<size_t, std::vector<std::shared_ptr<FoundActorPage>>> Pages;
 
-		void Generate(const char *name);
-		std::vector<std::shared_ptr<FoundActorPage>> &GetPages(const char *name);
-		RE::BSTArray<RE::BSFixedString> GetNames(const char * name);
+		void Generate(size_t searchIndex);
+		std::vector<std::shared_ptr<FoundActorPage>> &GetPages(size_t searchIndex);
+		RE::BSTArray<RE::BSFixedString> GetNames(size_t searchIndex);
 
 		static FoundActorPages *GetInstance();
 		static void Clear();
 
 	private:
-		static std::string Prepare(const char* name);
 	};
 }

@@ -5,6 +5,8 @@ namespace BeinzPlugin {
 	std::array<char, 256> GenerateActorPageName(bool empty, size_t page, size_t pageSize) {
 		std::array<char, 256> buffer{};
 
+		SPDLOG_TRACE("Empty: {}, Page: {}, PageSize: {}", empty, page, pageSize);
+
 		if(empty) {
 			auto [out, size] = fmt::format_to_n(buffer.data(), buffer.size(), "Empty");
 
