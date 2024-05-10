@@ -49,14 +49,19 @@ string[] Function GenerateNPCPageStrings(int mod) global native
 Actor[] Function GetActorsInPage(int modIndex, int index) global native
 ActorBase[] Function GetNPCsInPage(int modIndex, int index) global native
 
-Actor[] Function FindCharactersByName(string name) global native
-int Function FindCharactersByNameCount(string name) global native
-string Function FindCharactersByNameModName(string name, int characterIndex) global native
-int[] Function FindCharactersByNameModIndices(string name) global native
-string[] Function FindCharactersByNameModNames(string name) global native
 
-string[] Function GenerateFoundPages(string name) global native
-int Function GetGeneratedFoundPagesCount(string name) global native
+;Getting pointer to found character list
+int Function FindCharactersByName(string name) global native
+;Getting characters from pointer
+Actor[] Function FindCharactersByNameActors(int searchIndex) global native
+;Getting 
+string Function FindCharactersByNameModName(int searchIndex, int characterIndex) global native
+;Getting
+int[] Function FindCharactersByNameModIndices(int searchIndex) global native
+;Getting
+string[] Function FindCharactersByNameModNames(int searchIndex) global native
+
+string[] Function GenerateFoundPages(int searchIndex) global native
 
 string Function GetModName(int index) global native
 

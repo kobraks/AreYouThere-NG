@@ -3,7 +3,7 @@ scriptname beinz_plugin_SkiMenu extends SKI_ConfigBase
 ; SCRIPT VERSION ----------------------------------------------------------------------------------
 
 int function GetVersion()
-	return 9;
+	return 10;
 endFunction
 
 
@@ -83,6 +83,7 @@ string[] m_FoundPagesDefault
 
 int m_FoundPageCount = 0
 int m_FoundPage = 0
+int m_SearchIndex = 0
 
 function DoAction(Actor target, int selectedAction)
 	;self.ShowMessage("Selected Actor : [0x" + BeinzPluginScript.IntToHexString(target.GetFormID()) + "]" + target.GetActorBase().GetName(), false)
@@ -149,6 +150,20 @@ Function SelectModPage(int modPage)
 	Debug.Trace("Selected mod page: " + modPage + " " + m_ModPages[modPage])
 EndFunction
 
+Function ClearSearchCache()
+	BeinzPluginScript.ClearSearchCache()
+	m_LastSearched = ""
+	m_EntriesFound = 0
+
+	m_SearchIndex = 0
+
+	m_FoundPages = m_FoundPagesDefault
+	m_FoundPageCount = 0
+	m_FoundPage = 0
+
+	Debug.Trace("AreYouThere: Clearing Cache search results")
+EnDFunction
+
 event OnConfigInit()
 	ModName = "Are You There ?"
 
@@ -197,6 +212,7 @@ event OnConfigInit()
 	m_ActorsPage = 0
 	m_Actorsindex = -1
 
+	m_SearchIndex = 0
 	m_EntriesFound = 0
 	m_FoundPage = 0
 	m_FoundPageCount = 1
@@ -423,8 +439,8 @@ event OnPageReset(string page)
 			int loop = 0
 
 			if (m_EntriesFound != 0)
-				int[] modIndices = BeinzPluginScript.FindCharactersByNameModIndices(m_LastSearched)
-				string[] modNames = BeinzPluginScript.FindCharactersByNameModNames(m_LastSearched)
+				int[] modIndices = BeinzPluginScript.FindCharactersByNameModIndices(m_SearchIndex)
+				string[] modNames = BeinzPluginScript.FindCharactersByNameModNames(m_SearchIndex)
 
 				int currentMod = 0
 				bool shown = false;
@@ -680,7 +696,9 @@ State InitST
 		SetOptionFlagsST(OPTION_FLAG_DISABLED)
 		SetTextOptionValueST("Processing...")
 
-		m_Inited = einzPluginScript.InitMods()
+		ClearSearchCache()
+
+		m_Inited = BeinzPluginScript.InitMods()
 		if (m_Inited)
 			m_ActorCount = BeinzPluginScript.GetTotalActors()
 			m_NPCCount = BeinzPluginScript.GetTotalNPCs()
@@ -711,12 +729,13 @@ State SearchST
 		m_LastSearched = value
 		Debug.Trace("AreYouThere: Looking For " + value)
 
-		m_ActorsFound = BeinzPluginScript.FindCharactersByName(m_LastSearched)
-		m_EntriesFound = Bm_ActorsFound.Length
+		m_SearchIndex = BeinzPluginScript.FindCharactersByName(m_LastSearched)
+		m_ActorsFound = BeinzPluginScript.FindCharactersByNameActors(m_SearchIndex)
+		m_EntriesFound = m_ActorsFound.Length
 
 		m_FoundPage = 0
 
-		m_FoundPages = BeinzPluginScript.GenerateFoundPages(m_LastSearched)
+		m_FoundPages = BeinzPluginScript.GenerateFoundPages(m_SearchIndex)
 		m_FoundPageCount = m_FoundPages.Length
 
 		self.SetInputOptionValueST(m_LastSearched)
@@ -730,19 +749,11 @@ EndState
 
 State ClearCacheST
 	Event OnSelectST()
-		BeinzPluginScript.ClearSearchCache()
-		m_LastSearched = ""
-		m_EntriesFound = 0
-
-		m_FoundPages = m_FoundPagesDefault
-		m_FoundPageCount = 0
-		m_FoundPage = 0
+		ClearSearchCache()
 
 		self.SetTextOptionValue(m_IdTextFound, 0)
 		self.SetTextOptionValueST("Cache cleaned")
-
-		Debug.Trace("AreYouThere: Clearing Cache search results")
-
+		
 		ForcePageReset()
 	EndEvent
 EndState
