@@ -714,6 +714,8 @@ State InitST
 			endif
 
 			m_ModPages = BeinzPluginScript.GenerateModPages()
+			m_ModsPage = 0
+
 			Debug.trace("Mod pages count: " + m_ModPages.Length)
 		else
 			self.ShowMessage("Something went wrong unable to initialize mod list (plz report to mod author)")

@@ -24,7 +24,7 @@ namespace BeinzPlugin {
 
 		m_Cache.emplace_back(Find(sName));
 
-		return m_Results.emplace(sName, m_Results.size() - 1).first->second;
+		return m_Results.emplace(sName, m_Cache.size() - 1).first->second;
 	}
 
 	const ActorSearchResultTableT & FindCharacter::GetSearchResult(size_t index) const {
