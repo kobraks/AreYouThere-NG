@@ -7,6 +7,8 @@ project "AreYouThereSE NG"
     targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
     objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
+	targetname "AreYouThere"
+
 	pchheader "pch.h"
 	pchsource "src/pch.cpp"
 
