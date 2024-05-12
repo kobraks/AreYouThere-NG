@@ -8,7 +8,7 @@ namespace BeinzPlugin {
 	class Mod;
 
 	using namespace std::literals;
-	inline constexpr REL::Version VERSION { 1, 4, 2 };
+	inline constexpr REL::Version VERSION { 1, 0, 0 };
 	constexpr auto NAME = "AreYouThere NG"sv;
 
 	inline constexpr size_t PAGE_ITEMS  = 64;

@@ -52,7 +52,7 @@ namespace BeinzPlugin {
 		return CopyPage<RE::BSTArray<uint32_t>>(
 		                                        m_Mods,
 		                                        MaxItems(),
-		                                        [](const std::shared_ptr<Mod> &mod) { return mod->ActorCount(); }
+		                                        [](const std::shared_ptr<Mod> &mod) { return static_cast<uint32_t>(mod->ActorCount()); }
 		                                       );
 	}
 
@@ -78,7 +78,7 @@ namespace BeinzPlugin {
 		return CopyPage<RE::BSTArray<uint32_t>>(
 		                                        m_Mods,
 		                                        MaxItems(),
-		                                        [](const std::shared_ptr<Mod> &mod) { return mod->NPCCount(); }
+		                                        [](const std::shared_ptr<Mod> &mod) { return static_cast<uint32_t>(mod->NPCCount()); }
 		                                       );
 	}
 }
