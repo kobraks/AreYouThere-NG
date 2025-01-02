@@ -25,6 +25,9 @@ workspace "AreYouThere"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+filter ("action:vs*")
+    buildoptions {"/utf-8"}
+
 group "Dependencies"
     include "vendor/premake"
     include "vendor/fmt"
