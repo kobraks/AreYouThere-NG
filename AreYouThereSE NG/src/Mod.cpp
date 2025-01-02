@@ -9,68 +9,117 @@
 
 using TESType = int32_t;
 
-#define TESTYPE_TES4 '4SET'
-#define TESTYPE_GRUP 'PURG'
-#define TESTYPE_CELL 'LLEC'
-#define TESTYPE_WRLD 'DLRW'
-#define TESTYPE_NPC_ '_CPN'
-#define TESTYPE_ACHR 'RHCA'
+constexpr TESType TESTYPE_TES4 = '4SET';
+constexpr TESType TESTYPE_GRUP = 'PURG';
+constexpr TESType TESTYPE_CELL = 'LLEC';
+constexpr TESType TESTYPE_WRLD = 'DLRW';
+constexpr TESType TESTYPE_NPC_ = '_CPN';
+constexpr TESType TESTYPE_ACHR = 'RHCA';
 
-#pragma pack(push, 1) // exact fit - no padding
 struct TESField {
 	TESType Type{};
 	uint16_t DataSize{};
-	uint8_t *Data = nullptr;
+	uint8_t *Data = nullptr; //Unused
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1) // exact fit - no padding
 struct TESRecord {
 	TESType Type{};
 	uint32_t DataSize{}, Flags{}, ID{};
 	uint16_t Stamp{}, Revision{};
 	uint16_t Version{}, Unknown{};
-	TESField *Data = nullptr;
+	TESField *Data = nullptr; //Unused
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1) // exact fit - no padding
 struct TESGroup {
 	TESType Type{};
 	uint32_t GroupSize{};
-	char Label[4];
+	uint32_t Label{};
 	int32_t GroupType{};
 	uint16_t Stamp{}, Version{};
 	uint32_t Unknown{};
-	TESRecord *Data = nullptr;
+	TESRecord *Data = nullptr; //Unused
 };
-#pragma pack(pop)
 
 namespace {
 	template <typename T>
-	auto& ReadFile(std::ifstream &stream, T &result, size_t offset) {
-		stream.seekg(static_cast<std::istream::off_type>(offset), std::ios::beg);
+	auto& Read(std::ifstream &stream, T &result) {
 		return stream.read(reinterpret_cast<char*>(&result), sizeof(T));
 	}
 
-	bool IsRootToCheck(const char *label) {
-		constexpr std::string_view TypesStringRoot[3] = {"CELL", "WRLD", "NPC_"};
-		const auto sv                                 = std::string_view(label, 4);
+	bool ReadFile(std::ifstream &stream, TESField &field, size_t offset) {
+		try {
+			stream.seekg(static_cast<std::istream::pos_type>(offset), std::ios::beg);
+			if (stream.eof())
+				return false;
 
-		for(const auto &i : TypesStringRoot) {
-			if(sv == i)
+			Read(stream, field.Type);
+			Read(stream, field.DataSize);
+		}catch(...) {
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ReadFile(std::ifstream &stream, TESRecord &record, size_t offset) {
+		try {
+			stream.seekg(static_cast<std::istream::pos_type>(offset), std::ios::beg);
+			if (stream.eof())
+				return false;
+
+			Read(stream, record.Type);
+			Read(stream, record.DataSize);
+			Read(stream, record.Flags);
+			Read(stream, record.ID);
+			Read(stream, record.Stamp);
+			Read(stream, record.Revision);
+			Read(stream, record.Version);
+			Read(stream, record.Unknown);
+		} catch(...) {
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ReadFile(std::ifstream &stream, TESGroup &group, size_t offset) {
+		try {
+			stream.seekg(static_cast<std::istream::pos_type>(offset), std::ios::beg);
+			if (stream.eof())
+				return false;
+
+			Read(stream, group.Type);
+			Read(stream, group.GroupSize);
+			Read(stream, group.Label);
+			Read(stream, group.GroupType);
+			Read(stream, group.Stamp);
+			Read(stream, group.Version);
+			Read(stream, group.Unknown);
+		} catch(...) {
+			return false;
+		}
+
+		return true;
+	}
+
+	bool IsRootToCheck(uint32_t label) {
+		constexpr static uint32_t s_RootCheck[] = {TESTYPE_CELL, TESTYPE_WRLD, TESTYPE_NPC_};
+
+		for (const auto &t : s_RootCheck) {
+			if (t == label)
 				return true;
 		}
 
 		return false;
 	}
 
-	bool IsTypesToCheck(TESType type) {
-		constexpr static TESType TypestToCheck[] = {TESTYPE_CELL, TESTYPE_WRLD, TESTYPE_ACHR, TESTYPE_NPC_};
+	bool IsTypeToCheck(TESType type) {
+		constexpr static TESType s_ToCheck[] = {TESTYPE_CELL, TESTYPE_WRLD, TESTYPE_ACHR, TESTYPE_NPC_};
 
-		for(const auto t : TypestToCheck)
+		for(const auto t : s_ToCheck) {
 			if(t == type)
 				return true;
+		}
 
 		return false;
 	}
@@ -234,7 +283,7 @@ namespace BeinzPlugin {
 	}
 
 	bool Mod::ProcessRecord(uint32_t id, int32_t type, const RE::TESFile &mod) {
-		if (type != TESTYPE_GRUP && IsTypesToCheck(type)) {
+		if (type != TESTYPE_GRUP && IsTypeToCheck(type)) {
 			switch(type) {
 				case TESTYPE_ACHR: ProcessActor(id, mod); break;
 				case TESTYPE_NPC_: ProcessActorBase(id, mod); break;
@@ -294,7 +343,7 @@ namespace BeinzPlugin {
 
 	uint16_t Mod::GetFormModID(uint32_t formID, bool isLight) {
 		if(isLight)
-			return (formID >> 12);
+			return static_cast<uint16_t>(formID >> 12);
 		return formID >> 24;
 	}
 
