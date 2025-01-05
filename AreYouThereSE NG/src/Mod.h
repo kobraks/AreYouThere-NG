@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Actor.h"
+#include "Reader.h"
+
 #include <cstdint>
 #include <string_view>
 
 #include <unordered_set>
 #include <vector>
-
-#include "Actor.h"
 
 namespace BeinzPlugin {
 	class Mod {
@@ -34,14 +35,14 @@ namespace BeinzPlugin {
 		const std::vector<std::shared_ptr<Actor>>& GetActors() const { return m_Actors; }
 		const std::vector<std::shared_ptr<ActorBase>>& GetActorBases() const { return m_ActorBases; }
 
-		constexpr bool operator==(const Mod& other) const {
+		constexpr bool operator==(const Mod &other) const {
 			return m_ID == other.m_ID;
 		}
 
 	private:
 		void ParseESP(std::string_view fileName, const RE::TESFile &mod);
-		uint32_t ProcessGroup(std::ifstream &file, size_t offset, const RE::TESFile &mod, bool isRoot = false);
-		uint32_t ProcessRecords(std::ifstream &file, uint32_t groupSize, size_t offset, const RE::TESFile &mod);
+		uint32_t ProcessGroup(Reader &reader, size_t offset, const RE::TESFile &mod, bool isRoot = false);
+		uint32_t ProcessRecords(Reader &reader, uint32_t groupSize, size_t offset, const RE::TESFile &mod);
 		bool ProcessRecord(uint32_t id, int32_t type, const RE::TESFile &mod);
 
 		void ProcessActor(uint32_t id, const RE::TESFile &mod);
