@@ -3,7 +3,7 @@ scriptname beinz_plugin_SkiMenu extends SKI_ConfigBase
 ; SCRIPT VERSION ----------------------------------------------------------------------------------
 
 int function GetVersion()
-	return 10;
+	return 100;
 endFunction
 
 
@@ -88,42 +88,42 @@ int m_SearchIndex = 0
 function DoAction(Actor target, int selectedAction)
 	;self.ShowMessage("Selected Actor : [0x" + BeinzPluginScript.IntToHexString(target.GetFormID()) + "]" + target.GetActorBase().GetName(), false)
 
-	Debug.Trace("AreYouThere: Selected actor: [0x" + BeinzPluginScript.IntToHexString(target.GetFormID())+"]" + target.GetActorBase().GetName())
+	BeinzPluginScript.WriteInfo("Selected actor: [0x" + BeinzPluginScript.IntToHexString(target.GetFormID())+"]" + target.GetActorBase().GetName())
 
 	if (!target)
-		Debug.Trace("AreYouThere: Selected null actor", 2)
+		BeinzPluginScript.WriteError("Selected null actor")
 		return
 	endIf
 
 	if (selectedAction == 0)
-		Debug.Trace("AreYouThere: Nulll action selected")
+		BeinzPluginScript.WriteInfo("Null action selected")
 	elseIf (selectedAction == 1)
-		Debug.Trace("AreYouThere: Moving selected actor to player")
+		BeinzPluginScript.WriteInfo("Moving selected actor to player")
 		target.MoveTo(Game.GetPlayer())
 	elseIf (selectedAction == 2)
-		Debug.Trace("AreYouThere: Moving player to selected actor")
+		BeinzPluginScript.WriteInfo("Moving player to selected actor")
 		Game.GetPlayer().MoveTo(target)
 	elseIf (selectedAction == 3)
-		Debug.Trace("AreYouThere: Adding map marker to selected actor")
+		BeinzPluginScript.WriteInfo("Adding map marker to selected actor")
 		MyQuest.AddMapMarker(target, target)
 	elseIf (selectedAction == 4)
-		Debug.Trace("AreYouThere: Removing map marker to selected actor")
+		BeinzPluginScript.WriteInfo("Removing map marker to selected actor")
 		MyQuest.RemoveMapMarker(target, target)
 	elseIf (selectedAction == 5)
 		ActorBase refActorBase = target.GetBaseObject() as ActorBase
 		if (refActorBase.isEssential())
-			Debug.Trace("AreYouThere: Marking selected actor as not essential")
+			BeinzPluginScript.WriteInfo("Marking selected actor as not essential")
 			refActorBase.SetEssential(false)
 		else
-			Debug.Trace("AreYouThere: Marking selected actor as essential")
+			BeinzPluginScript.WriteInfo("Marking selected actor as essential")
 			refActorBase.SetEssential(true)
 		endIf
 	elseIf (selectedAction == 6)
 		if (target.IsEnabled())
-			Debug.Trace("AreYouThere: Disabling seleccted actor")
+			BeinzPluginScript.WriteInfo("Disabling seleccted actor")
 			target.Disable()
 		else
-			Debug.Trace("AreYouThere: Enabling seleccted actor")
+			BeinzPluginScript.WriteInfo("Enabling seleccted actor")
 			target.Enable()
 		endIf
 	endIf
@@ -138,7 +138,7 @@ Function SelectMod(int modindex)
 	m_ActorsPage = 0
 	m_NpcPage = 0
 
-	Debug.Trace("AreYouThere: Selected mod: " + BeinzPluginScript.GetModName(m_SelectedMod) + " Actor Pages: " + m_ActorPages.Length + " Npc Pages: " + m_NPCPages.Length)
+	BeinzPluginScript.WriteInfo("Selected mod: " + BeinzPluginScript.GetModName(m_SelectedMod) + " Actor Pages: " + m_ActorPages.Length + " Npc Pages: " + m_NPCPages.Length)
 EndFunction
 
 Function SelectModPage(int modPage)
@@ -147,7 +147,7 @@ Function SelectModPage(int modPage)
 	m_ModNames = BeinzPluginScript.GetModNames(modPage)
 	m_ModIndices = BeinzPluginScript.GetModIndexes(modPage)
 
-	Debug.Trace("Selected mod page: " + modPage + " " + m_ModPages[modPage])
+	BeinzPluginScript.WriteInfo("Selected mod page: " + modPage + " " + m_ModPages[modPage])
 EndFunction
 
 Function ClearSearchCache()
@@ -161,7 +161,7 @@ Function ClearSearchCache()
 	m_FoundPageCount = 0
 	m_FoundPage = 0
 
-	Debug.Trace("AreYouThere: Clearing Cache search results")
+	BeinzPluginScript.WriteInfo("Clearing Cache search results")
 EnDFunction
 
 event OnConfigInit()
@@ -228,13 +228,8 @@ event OnVersionUpdate(int version)
 	OnConfigInit()
 endEvent
 
-event OnGameReload()
-	m_Inited = false
-endEvent
-
-
 event OnPageReset(string page)
-	Debug.Trace("AreYouThere: Page: " + page)
+	BeinzPluginScript.WriteDebug("Page: " + page)
 	if (Pages[MCMPage_Mods] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
@@ -525,7 +520,7 @@ Event OnOptionSelect(int option)
 				int npcIndex = pageAdd + loop
 
 				ActorBase actorb = BeinzPluginScript.GetModNPC(m_SelectedMod, npcIndex)
-				Debug.Trace("AreYouThere: Cloning [" + BeinzPluginScript.IntToHexString(actorb.GetFormID()) +"]" + actorb.GetName())
+				BeinzPluginScript.WriteInfo("Cloning [" + BeinzPluginScript.IntToHexString(actorb.GetFormID()) +"]" + actorb.GetName())
 				Game.GetPlayer().PlaceAtMe(actorb)
 
 				loop = m_ActorsPerPage
@@ -707,19 +702,19 @@ State InitST
 			m_SelectedMod = -1
 			if (m_ActorCount >= 65536)
 				self.ShowMessage("Too many Actors (plz report to modder) : " + m_actorCount, false)
-				Debug.trace("AreYouThere: Too many Actors (plz report to modder): " + m_actorCount, 2)
+				BeinzPluginScript.WriteError("Too many Actors (plz report to modder): " + m_actorCount)
 			else
-				Debug.trace("AreYouThere: Total Actors: " + m_actorCount + "\nTotal Base NPCs: " + m_NPCCount + "\nTotal Mods: " + m_ModCount)
+				BeinzPluginScript.WriteInfo("Total Actors: " + m_actorCount + "\nTotal Base NPCs: " + m_NPCCount + "\nTotal Mods: " + m_ModCount)
 				self.ShowMessage("Total Actors : " + m_actorCount + "\nTotal Base NPCs : " + m_NPCCount + "\nTotal Mods : " + m_ModCount, false)
 			endif
 
 			m_ModPages = BeinzPluginScript.GenerateModPages()
 			m_ModsPage = 0
 
-			Debug.trace("Mod pages count: " + m_ModPages.Length)
+			BeinzPluginScript.WriteInfo("Mod pages count: " + m_ModPages.Length)
 		else
 			self.ShowMessage("Something went wrong unable to initialize mod list (plz report to mod author)")
-			Debug.trace("AreYouThere: Unable to InitMods returned false")
+			BeinzPluginScript.WriteError("Unable to InitMods returned false")
 		endif
 
 		ForcePageReset()
@@ -729,7 +724,7 @@ EndState
 State SearchST
 	event OnInputAcceptST(string value)
 		m_LastSearched = value
-		Debug.Trace("AreYouThere: Looking For " + value)
+		BeinzPluginScript.WriteInfo("Looking For " + value)
 
 		m_SearchIndex = BeinzPluginScript.FindCharactersByName(m_LastSearched)
 		m_ActorsFound = BeinzPluginScript.FindCharactersByNameActors(m_SearchIndex)
@@ -743,7 +738,7 @@ State SearchST
 		self.SetInputOptionValueST(m_LastSearched)
 		self.SetTextOptionValue(m_IdTextFound, m_EntriesFound)
 
-		Debug.Trace("AreYouThere: Found: " + m_EntriesFound + " pages: " + m_FoundPageCount)
+		BeinzPluginScript.WriteDebug("Found: " + m_EntriesFound + " pages: " + m_FoundPageCount)
 
 		ForcePageReset()
 	EndEvent

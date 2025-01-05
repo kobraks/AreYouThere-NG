@@ -71,3 +71,23 @@ string Function IntToHexString(int num) global native
 string Function ModIndexToHexString(int index) global native
 
 int Function GetModFromActor(Actor a) global native
+
+Function WriteInfoLog(string msg) global native
+Function WriteDebugLog(string msg) global native
+Function WriteErrorLog(string msg) global native
+
+Function WriteInfo(string msg) global
+    WriteInfoLog(msg)
+    Debug.Trace("AreYouThere: " + msg)
+EndFunction
+
+Function WriteDebug(string msg) global
+    WriteDebugLog(msg)
+    Debug.Trace("AreYouThere: " + msg)
+EndFunction
+
+Function WriteError(string msg) global
+    WriteErrorLog(msg)
+    Debug.Trace("AreYouThere: " + msg, 2)
+EndFunction
+    

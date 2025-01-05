@@ -285,6 +285,19 @@ namespace BeinzPlugin {
 		FoundActorPages::Clear();
 	}
 
+	void WriteInfoLog(RE::StaticFunctionTag *, RE::BSFixedString message) {
+		
+		SPDLOG_INFO(message.c_str());
+	}
+
+	void WriteDebugLog(RE::StaticFunctionTag *, RE::BSFixedString message) {
+		SPDLOG_DEBUG(message.c_str());
+	}
+
+	void WriteErrorLog(RE::StaticFunctionTag *, RE::BSFixedString message) {
+		SPDLOG_ERROR(message.c_str());
+	}
+
 	bool RegisterFuncs(RE::BSScript::IVirtualMachine *vm) {
 		SPDLOG_DEBUG("Registering functions");
 
@@ -328,6 +341,10 @@ namespace BeinzPlugin {
 		REGISTER_FUNCTION(ClearSearchCache)
 
 		REGISTER_FUNCTION(GetModFromActor)
+
+		REGISTER_FUNCTION(WriteInfoLog)
+		REGISTER_FUNCTION(WriteDebugLog)
+		REGISTER_FUNCTION(WriteErrorLog)
 
 		return true;
 	}
