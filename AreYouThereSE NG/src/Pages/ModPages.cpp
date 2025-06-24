@@ -33,10 +33,7 @@ namespace BeinzPlugin {
 	RE::BSTArray<RE::BSFixedString> ModPages::GetNames() {
 		Generate();
 		if(Pages.empty()) {
-			RE::BSTArray<RE::BSFixedString> ret;
-			ret.emplace_back("Empty");
-
-			return ret;
+			return GetEmptyNamesList();
 		}
 		return CopyPage<RE::BSTArray<RE::BSFixedString>>(
 		                                                 Pages,

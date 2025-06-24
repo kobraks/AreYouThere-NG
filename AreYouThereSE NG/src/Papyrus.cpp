@@ -282,7 +282,7 @@ namespace BeinzPlugin {
 
 	void ClearSearchCache(RE::StaticFunctionTag *) {
 		FindCharacter::Clear();
-		FoundActorPages::Clear();
+		FoundActorPages::GetInstance()->Clear();
 	}
 
 	void WriteInfoLog(RE::StaticFunctionTag *, RE::BSFixedString message) {

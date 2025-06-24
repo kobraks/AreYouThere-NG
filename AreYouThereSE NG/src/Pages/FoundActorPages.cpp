@@ -17,41 +17,27 @@ namespace BeinzPlugin {
 		auto &pages  = Pages[searchIndex];
 		auto &result = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
 
-		const auto count = HowManyPages(result.size(), PAGE_ACTORS);
+		const auto count = HowManyPages(result.size(), m_PageSize);
 
 		if(count == 0) {
-			pages.emplace_back(std::make_shared<FoundActorPage>(0, PAGE_ACTORS, true));
+			pages.emplace_back(std::make_shared<FoundActorPage>(0, m_PageSize, true));
 		}
 
 		for(size_t i = 0; i < count; ++i) {
-			pages.emplace_back(std::make_shared<FoundActorPage>(i, PAGE_ACTORS, false));
+			pages.emplace_back(std::make_shared<FoundActorPage>(i, m_PageSize, false));
 		}
 
 		SPDLOG_DEBUG("Generated {} found actor pages", pages.size());
 	}
 
-	std::vector<std::shared_ptr<FoundActorPage>>& FoundActorPages::GetPages(size_t searchIndex) {
-		if(auto it = Pages.find(searchIndex); it != Pages.end()) {
-			return it->second;
-		}
-		Generate(searchIndex);
+	// std::vector<std::shared_ptr<FoundActorPage>>& FoundActorPages::GetPages(size_t searchIndex) {
+		// if(auto it = Pages.find(searchIndex); it != Pages.end()) {
+			// return it->second;
+		// }
+		// Generate(searchIndex);
 
-		return Pages[searchIndex];
-	}
-
-	RE::BSTArray<RE::BSFixedString> FoundActorPages::GetNames(size_t searchIndex) {
-		if(auto &page = GetPages(searchIndex); !page.empty()) {
-			return CopyPage<RE::BSTArray<RE::BSFixedString>>(
-			                                                 page,
-			                                                 PAGE_ACTORS,
-			                                                 [](const auto &page) { return page->GenerateName(); }
-			                                                );
-		}
-
-		RE::BSTArray<RE::BSFixedString> empty;
-		empty.emplace_back("Empty");
-		return empty;
-	}
+		// return Pages[searchIndex];
+	// }
 
 	FoundActorPages* FoundActorPages::GetInstance() {
 		static FoundActorPages instance;
@@ -59,7 +45,7 @@ namespace BeinzPlugin {
 		return &instance;
 	}
 
-	void FoundActorPages::Clear() {
-		GetInstance()->Pages.clear();
+	FoundActorPages::FoundActorPages() : TypedPages<unsigned long long, BeinzPlugin::FoundActorPage>(PAGE_ACTORS) {
+
 	}
 }

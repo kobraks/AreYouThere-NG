@@ -15,6 +15,7 @@ namespace BeinzPlugin {
 	}
 
 	bool Plugin::InitMods() {
+		const auto start = std::chrono::system_clock::now();
 		SPDLOG_INFO("Initializing mod list");
 
 		const auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -23,20 +24,22 @@ namespace BeinzPlugin {
 		Clear();
 
 		ProcessFiles(dataHandler->compiledFileCollection);
+		const auto end = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
 
 		SPDLOG_INFO("Loaded: {} mods", Mods.size());
 		SPDLOG_INFO("Found {} Actor", ActorCount);
 		SPDLOG_INFO("Found {} ActorBases", NPCCount);
+		SPDLOG_INFO("Done initializing: {}ms", end.count());
 
 		return !Mods.empty();
 	}
 
 	void Plugin::Clear() {
-		FoundActorPages::Clear();
+		FoundActorPages::GetInstance()->Clear();
 		FindCharacter::Clear();
 
-		ActorPages::Clear();
-		ActorBasePages::Clear();
+		ActorPages::GetInstance()->Clear();
+		ActorBasePages::GetInstance()->Clear();
 
 		ModPages::Clear();
 
