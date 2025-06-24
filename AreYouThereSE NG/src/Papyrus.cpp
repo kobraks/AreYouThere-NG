@@ -71,7 +71,7 @@ namespace BeinzPlugin {
 
 	uint32_t GetModNPCCount(RE::StaticFunctionTag *, uint32_t modIndex) {
 		if(const auto mod = GetMod(modIndex); mod)
-			return static_cast<uint32_t>(mod->ActorCount());
+			return static_cast<uint32_t>(mod->NPCCount());
 
 		return 0;
 	}
