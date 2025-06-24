@@ -5,16 +5,6 @@
 #include "Utils.h"
 
 namespace BeinzPlugin {
-	ActorPage::ActorPage(size_t page, size_t pageSize) : Page(true, page, pageSize) {}
-
-	ActorPage::ActorPage(
-		const std::vector<std::shared_ptr<Actor>> &actors,
-		size_t page,
-		size_t pageSize
-		) : Page(false, page, pageSize) {
-		m_Actors = CopyPage(actors, page, pageSize);
-	}
-
 	RE::BSFixedString ActorPage::GenerateName() {
 		SPDLOG_DEBUG("Creating Actor page for ID: {}", ID());
 
@@ -25,12 +15,8 @@ namespace BeinzPlugin {
 	}
 
 	RE::BSTArray<RE::Actor*> ActorPage::GetActors() const {
-		return CopyPage<RE::BSTArray<RE::Actor*>>(
-		                                          m_Actors,
-		                                          MaxItems(),
-		                                          [](const std::shared_ptr<Actor> &actor) {
-			                                          return actor->Form<RE::Actor>();
-		                                          }
-		                                         );
+		return GetTESContainer<RE::BSTArray<RE::Actor*>>([](const std::shared_ptr<Actor>& actor) {
+			return actor->Form<RE::Actor>();
+			});
 	}
 }

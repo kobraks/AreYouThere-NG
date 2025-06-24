@@ -1,23 +1,17 @@
 #pragma once
-#include "Page/Page.h"
+#include "Page/TypedPage.h"
 
 namespace BeinzPlugin {
 	class ActorBase;
 
-	class ActorBasePage: public Page {
+	class ActorBasePage: public TypedPage<ActorBase> {
 	public:
-		ActorBasePage(size_t page, size_t pageSize);
-		ActorBasePage(const std::vector<std::shared_ptr<ActorBase>> &actors, size_t page, size_t pageSize);
+		using TypedPage::TypedPage;
+
 		~ActorBasePage() override = default;
 
 		RE::BSFixedString GenerateName() override;
 
-		std::vector<std::shared_ptr<ActorBase>>& Actors() { return m_Actors; }
-		const std::vector<std::shared_ptr<ActorBase>>& Actors() const { return m_Actors; }
-
 		RE::BSTArray<RE::TESNPC*> GetActors() const;
-
-	private:
-		std::vector<std::shared_ptr<ActorBase>> m_Actors;
 	};
 }

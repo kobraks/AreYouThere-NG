@@ -5,17 +5,18 @@
 #include "Utils.h"
 
 namespace BeinzPlugin {
-	ModPage::ModPage() : ModPage(0, 0) {}
+	namespace Utils {
+		static RE::BSTArray<uint32_t> EmptyIndicesList() {
+			static bool initialized = false;
+			static RE::BSTArray<uint32_t> result(1);
 
-	ModPage::ModPage(size_t page, size_t pageSize) : Page(true, page, pageSize) {}
+			if (!initialized) {
+				initialized = true;
+				result.emplace_back(0);
+			}
 
-	ModPage::ModPage(
-		const std::vector<std::shared_ptr<Mod>> &mods,
-		size_t page,
-		size_t pageSize
-		) : Page(false, page, pageSize) {
-		m_Mods = CopyPage(mods, page, pageSize);
-		Empty(m_Mods.empty());
+			return result;
+		}
 	}
 
 	RE::BSFixedString ModPage::GenerateName() {
@@ -28,57 +29,38 @@ namespace BeinzPlugin {
 	}
 
 	RE::BSTArray<RE::BSFixedString> ModPage::GetNames() const {
-		if(m_Mods.empty()) {
+		if(m_Items.empty()) {
 			RE::BSTArray<RE::BSFixedString> result;
 			result.emplace_back("Empty");
 			return result;
 		}
 
-		return CopyPage<RE::BSTArray<RE::BSFixedString>>(
-		                                                 m_Mods,
-		                                                 MaxItems(),
-		                                                 [](const std::shared_ptr<Mod> &mod) {
-			                                                 return mod->CombinedName().data();
-		                                                 }
-		                                                );
+		return GetTESContainer<RE::BSTArray<RE::BSFixedString>>([](const std::shared_ptr<Mod>& mod) {
+			return mod->CombinedName().data();
+			});
 	}
 
 	RE::BSTArray<uint32_t> ModPage::GetActorCounts() const {
-		if(m_Mods.empty()) {
-			RE::BSTArray<uint32_t> result;
-			result.emplace_back(0);
-			return result;
+		if(m_Items.empty()) {
+			return Utils::EmptyIndicesList();
 		}
-		return CopyPage<RE::BSTArray<uint32_t>>(
-		                                        m_Mods,
-		                                        MaxItems(),
-		                                        [](const std::shared_ptr<Mod> &mod) { return static_cast<uint32_t>(mod->ActorCount()); }
-		                                       );
+
+		return GetTESContainer<RE::BSTArray<uint32_t>>([](const std::shared_ptr<Mod>& mod) { return static_cast<uint32_t>(mod->ActorCount()); });
 	}
 
 	RE::BSTArray<uint32_t> ModPage::GetIndexes() const {
-		if(m_Mods.empty()) {
-			RE::BSTArray<uint32_t> result;
-			result.emplace_back(0);
-			return result;
+		if(m_Items.empty()) {
+			return Utils::EmptyIndicesList();
 		}
-		return CopyPage<RE::BSTArray<uint32_t>>(
-		                                        m_Mods,
-		                                        MaxItems(),
-		                                        [](const std::shared_ptr<Mod> &mod) { return mod->ID(); }
-		                                       );
+
+		return GetTESContainer<RE::BSTArray<uint32_t>>([](const std::shared_ptr<Mod>& mod) { return static_cast<uint32_t>(mod->ID()); });
 	}
 
 	RE::BSTArray<uint32_t> ModPage::GetNPCCounts() const {
-		if(m_Mods.empty()) {
-			RE::BSTArray<uint32_t> result;
-			result.emplace_back(0);
-			return result;
+		if(m_Items.empty()) {
+			return Utils::EmptyIndicesList();
 		}
-		return CopyPage<RE::BSTArray<uint32_t>>(
-		                                        m_Mods,
-		                                        MaxItems(),
-		                                        [](const std::shared_ptr<Mod> &mod) { return static_cast<uint32_t>(mod->NPCCount()); }
-		                                       );
+
+		return GetTESContainer<RE::BSTArray<uint32_t>>([](const std::shared_ptr<Mod>& mod) { return static_cast<uint32_t>(mod->NPCCount()); });
 	}
 }
