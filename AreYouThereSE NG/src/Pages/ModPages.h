@@ -6,7 +6,7 @@ namespace BeinzPlugin {
 	public:
 		std::vector<std::shared_ptr<ModPage>> Pages;
 
-		std::shared_ptr<ModPage> GetPage(size_t page);
+		std::shared_ptr<ModPage> GetPage(std::size_t page);
 
 		void Generate();
 		RE::BSTArray<RE::BSFixedString> GetNames();
