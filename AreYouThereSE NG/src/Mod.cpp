@@ -13,6 +13,7 @@ constexpr BeinzPlugin::Reader::TESType TESTYPE_WRLD = 'DLRW';
 constexpr BeinzPlugin::Reader::TESType TESTYPE_NPC_ = '_CPN';
 constexpr BeinzPlugin::Reader::TESType TESTYPE_ACHR = 'RHCA';
 
+constexpr std::size_t RECORD_HEADER_SIZE = 0x18;
 
 namespace {
 	bool IsRootToCheck(uint32_t label) {
@@ -148,7 +149,7 @@ namespace BeinzPlugin {
 		size_t offset = 0;
 		if(Reader::Record record{}; reader.Read(record, offset)) {
 			if(record.Type == TESTYPE_TES4) {
-				offset = 0x18 + record.DataSize;
+				offset = RECORD_HEADER_SIZE + record.DataSize;
 
 				uint32_t groupSize = 0;
 				do {
@@ -178,14 +179,14 @@ namespace BeinzPlugin {
 		Reader::Record record{};
 		uint32_t recordSize = 0;
 
-		for(size_t groupOffset = 0x18; groupOffset < groupSize; groupOffset += (record.Type == TESTYPE_GRUP
+		for(size_t groupOffset = RECORD_HEADER_SIZE; groupOffset < groupSize; groupOffset += (record.Type == TESTYPE_GRUP
 			    ? record.DataSize
 			    : recordSize)) {
 			const size_t newOffset = offset + groupOffset;
 			if(!reader.Read(record, newOffset))
 				return 0;
 
-			recordSize = 0x18 + record.DataSize;
+			recordSize = RECORD_HEADER_SIZE + record.DataSize;
 
 			if(!ProcessRecord(record.ID, record.Type, mod))
 				ProcessGroup(reader, newOffset, mod);
