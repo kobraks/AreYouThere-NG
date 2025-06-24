@@ -10,7 +10,7 @@
 namespace BeinzPlugin {
 	void FoundActorPages::Generate(size_t searchIndex) {
 		if(Pages.contains(searchIndex)) {
-			SPDLOG_DEBUG("Page already exist returning cache");
+			SPDLOG_DEBUG("Page already exits, returning cached version");
 			return;
 		}
 

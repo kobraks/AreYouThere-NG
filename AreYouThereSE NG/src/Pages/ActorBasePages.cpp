@@ -8,7 +8,7 @@
 namespace BeinzPlugin {
 	void ActorBasePages::Generate(std::shared_ptr<Mod> mod, uint32_t modIndex) {
 		if(Pages.contains(modIndex)) {
-			SPDLOG_DEBUG("Page already exits returing cached");
+			SPDLOG_DEBUG("Page already exits, returning cached version");
 			return;
 		}
 
