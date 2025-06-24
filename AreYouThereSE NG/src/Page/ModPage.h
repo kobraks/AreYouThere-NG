@@ -4,7 +4,7 @@
 namespace BeinzPlugin {
 	class Mod;
 
-	class ModPage : TypedPage<Mod> {
+	class ModPage : public TypedPage<Mod> {
 	public:
 		using TypedPage::TypedPage;
 
