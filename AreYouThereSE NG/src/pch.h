@@ -1,5 +1,14 @@
 #pragma once
 
+#include <string>
+#include <string_view>
+#include <memory>
+#include <unordered_map>
+#include <vector>
+#include <array>
+#include <cstdint>
+#include <algorithm>
+
 #pragma warning(push)
 #include <RE/Skyrim.h>
 #include <REL/Relocation.h>
