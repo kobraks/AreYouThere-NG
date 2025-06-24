@@ -2,7 +2,7 @@
 #include "Utils.h"
 
 namespace BeinzPlugin {
-	std::array<char, 256> GenerateActorPageName(bool empty, size_t page, size_t pageSize) {
+	std::array<char, 256> GenerateActorPageName(bool empty, std::size_t page, std::size_t pageSize) {
 		std::array<char, 256> buffer{};
 
 		SPDLOG_TRACE("Empty: {}, Page: {}, PageSize: {}", empty, page, pageSize);
@@ -28,7 +28,7 @@ namespace BeinzPlugin {
 		return buffer;
 	}
 
-	std::array<char, 256> GenerateModPageName(bool empty, size_t page, size_t pageSize) {
+	std::array<char, 256> GenerateModPageName(bool empty, std::size_t page, std::size_t pageSize) {
 		std::array<char, 256> buffer{};
 
 		if(empty) {
@@ -50,5 +50,33 @@ namespace BeinzPlugin {
 		}
 
 		return buffer;
+	}
+
+	RE::BSTArray<uint32_t> GetEmptyIndicesList() {
+		static bool initialized = false;
+		static RE::BSTArray<uint32_t> result;
+
+		if (!initialized) {
+			initialized = true;
+			result.clear();
+			result.reserve(1);
+			result.emplace_back(0);
+		}
+
+		return result;
+	}
+
+	RE::BSTArray<RE::BSFixedString> GetEmptyNamesList() {
+		static bool initialized = false;
+		static RE::BSTArray<RE::BSFixedString> result;
+
+		if (!initialized) {
+			initialized = true;
+			result.clear();
+			result.reserve(1);
+			result.emplace_back("Empty");
+		}
+
+		return result;
 	}
 }

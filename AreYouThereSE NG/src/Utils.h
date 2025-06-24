@@ -1,12 +1,15 @@
 #pragma once
 
 namespace BeinzPlugin {
-	constexpr size_t HowManyPages(const size_t items, const size_t pageSize) {
+	constexpr std::size_t HowManyPages(const std::size_t items, const std::size_t pageSize) {
 		return (items / pageSize) + ((items % pageSize) ? 1 : 0);
 	}
 
-	std::array<char, 256> GenerateActorPageName(bool empty, size_t page, size_t pageSize);
-	std::array<char, 256> GenerateModPageName(bool empty, size_t page, size_t pageSize);
+	RE::BSTArray<uint32_t> GetEmptyIndicesList();
+	RE::BSTArray<RE::BSFixedString> GetEmptyNamesList();
+
+	std::array<char, 256> GenerateActorPageName(bool empty, std::size_t page, std::size_t pageSize);
+	std::array<char, 256> GenerateModPageName(bool empty, std::size_t page, std::size_t pageSize);
 
 	// template <class T, class From, typename Fn>
 	// T CopyPage(const From &from, size_t page, size_t pageSize, Fn func) {
@@ -31,26 +34,26 @@ namespace BeinzPlugin {
 	// }
 
 	template <class T, class From, typename Fn>
-	T CopyPage(const From &from, size_t pageSize, Fn func) {
+	T CopyPage(const From &from, std::size_t pageSize, Fn func) {
 		T items{};
 
 		SPDLOG_TRACE("From size: {}, pageSize: {}", from.size(), pageSize);
 
-		items.reserve(static_cast<T::size_type>(pageSize));
+		items.reserve(static_cast<typename T::size_type>(pageSize));
 		std::transform(from.begin(), from.end(), std::back_inserter(items), func);
 
 		return items;
 	}
 
 	template <class T>
-	T CopyPage(const T &from, size_t page, size_t pageSize) {
+	T CopyPage(const T &from, std::size_t page, std::size_t pageSize) {
 		T items{};
 
-		const size_t start = page * pageSize;
-		const size_t end   = (page + 1) * pageSize;
+		const std::size_t start = page * pageSize;
+		const std::size_t end   = (page + 1) * pageSize;
 
 		SPDLOG_TRACE(
-		             "page: {} [start: {}, end: {}, pageSize: {}, pageSize: {}]",
+		             "page: {} [start: {}, end: {}, sourceSize: {}, pageSize: {}]",
 		             page,
 		             start,
 		             end,
@@ -61,7 +64,7 @@ namespace BeinzPlugin {
 		if(start >= from.size())
 			return items;
 
-		items.reserve(static_cast<T::size_type>(pageSize));
+		items.reserve(static_cast<typename T::size_type>(pageSize));
 
 		const auto beginI = from.begin() + start;
 		const auto endI   = end < from.size() ? from.begin() + end : from.end();
