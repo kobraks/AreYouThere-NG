@@ -33,15 +33,20 @@ namespace BeinzPlugin {
 		Reader(std::string_view fileName);
 		~Reader();
 
-		bool Read(Field &field, size_t offset);
-		bool Read(Record &record, size_t offset);
-		bool Read(Group &group, size_t offset);
+		Reader(const Reader&) = delete;
+		Reader(Reader&&) noexcept = default;
+
+		Reader& operator=(const Reader&) = delete;
+		Reader& operator=(Reader&&) noexcept = default;
+
+		bool Read(Field &field, std::size_t offset);
+		bool Read(Record &record, std::size_t offset);
+		bool Read(Group &group, std::size_t offset);
 
 		bool IsGood() const;
 	private:
 		template <typename T>
 		auto& Get(T &result);
-
 
 		std::ifstream m_Stream;
 	};
