@@ -4,7 +4,7 @@
 namespace BeinzPlugin {
 	class FoundActorPage : public Page {
 	public:
-		FoundActorPage(size_t page, size_t pageSize, bool empty = false);
+		FoundActorPage(std::size_t page, std::size_t pageSize, bool empty = false);
 
 		~FoundActorPage() override = default;
 		RE::BSFixedString GenerateName() override;

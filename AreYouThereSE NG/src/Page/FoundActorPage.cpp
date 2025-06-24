@@ -3,7 +3,7 @@
 #include "Utils.h"
 
 namespace BeinzPlugin {
-	FoundActorPage::FoundActorPage(size_t page, size_t pageSize, bool empty) : Page(empty, page, pageSize) {
+	FoundActorPage::FoundActorPage(std::size_t page, std::size_t pageSize, bool empty) : Page(empty, page, pageSize) {
 		
 	}
 
