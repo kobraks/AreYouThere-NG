@@ -6,32 +6,25 @@
 
 #include <array>
 
-constexpr BeinzPlugin::Reader::TESType TESTYPE_TES4 = '4SET';
-constexpr BeinzPlugin::Reader::TESType TESTYPE_GRUP = 'PURG';
-constexpr BeinzPlugin::Reader::TESType TESTYPE_CELL = 'LLEC';
-constexpr BeinzPlugin::Reader::TESType TESTYPE_WRLD = 'DLRW';
-constexpr BeinzPlugin::Reader::TESType TESTYPE_NPC_ = '_CPN';
-constexpr BeinzPlugin::Reader::TESType TESTYPE_ACHR = 'RHCA';
-
 constexpr std::size_t RECORD_HEADER_SIZE = 0x18;
 
 namespace {
 	bool IsRootToCheck(uint32_t label) {
-		constexpr static uint32_t s_RootCheck[] = {TESTYPE_CELL, TESTYPE_WRLD, TESTYPE_NPC_};
+		constexpr static BeinzPlugin::RecordType s_RootCheck[] = {BeinzPlugin::RecordType::CELL, BeinzPlugin::RecordType::WRLD, BeinzPlugin::RecordType::NPC_};
 
-		for (const auto &t : s_RootCheck) {
-			if (t == label)
+		for (const auto &recordType : s_RootCheck) {
+			if (BeinzPlugin::IsRecordType(label, recordType))
 				return true;
 		}
 
 		return false;
 	}
 
-	bool IsTypeToCheck(BeinzPlugin::Reader::TESType type) {
-		constexpr static BeinzPlugin::Reader::TESType s_ToCheck[] = {TESTYPE_CELL, TESTYPE_WRLD, TESTYPE_ACHR, TESTYPE_NPC_};
+	bool IsTypeToCheck(BeinzPlugin::TESType type) {
+		constexpr static BeinzPlugin::RecordType s_ToCheck[] = { BeinzPlugin::RecordType::CELL, BeinzPlugin::RecordType::WRLD, BeinzPlugin::RecordType::ACHR, BeinzPlugin::RecordType::NPC_};
 
-		for(const auto t : s_ToCheck) {
-			if(t == type)
+		for(const auto recordType : s_ToCheck) {
+			if(BeinzPlugin::IsRecordType(type, recordType))
 				return true;
 		}
 
@@ -147,8 +140,8 @@ namespace BeinzPlugin {
 		}
 
 		size_t offset = 0;
-		if(Reader::Record record{}; reader.Read(record, offset)) {
-			if(record.Type == TESTYPE_TES4) {
+		if(Record record{}; reader.Read(record, offset)) {
+			if(IsRecordType(record.Type, RecordType::TES4)) {
 				offset = RECORD_HEADER_SIZE + record.DataSize;
 
 				uint32_t groupSize = 0;
@@ -162,8 +155,8 @@ namespace BeinzPlugin {
 	}
 
 	uint32_t Mod::ProcessGroup(Reader &reader, size_t offset, const RE::TESFile &mod, bool isRoot) {
-		if(Reader::Group group{}; reader.Read(group, offset)) {
-			if(group.Type != TESTYPE_GRUP)
+		if(Group group{}; reader.Read(group, offset)) {
+			if(!IsRecordType(group.Type, RecordType::GRUP))
 				return 0;
 
 			if(isRoot && !IsRootToCheck(group.Label))
@@ -176,10 +169,10 @@ namespace BeinzPlugin {
 	}
 
 	uint32_t Mod::ProcessRecords(Reader &reader, uint32_t groupSize, size_t offset, const RE::TESFile &mod) {
-		Reader::Record record{};
+		Record record{};
 		uint32_t recordSize = 0;
 
-		for(size_t groupOffset = RECORD_HEADER_SIZE; groupOffset < groupSize; groupOffset += (record.Type == TESTYPE_GRUP
+		for(size_t groupOffset = RECORD_HEADER_SIZE; groupOffset < groupSize; groupOffset += (IsRecordType(record.Type, RecordType::GRUP)
 			    ? record.DataSize
 			    : recordSize)) {
 			const size_t newOffset = offset + groupOffset;
@@ -196,10 +189,12 @@ namespace BeinzPlugin {
 	}
 
 	bool Mod::ProcessRecord(uint32_t id, int32_t type, const RE::TESFile &mod) {
-		if (type != TESTYPE_GRUP && IsTypeToCheck(type)) {
-			switch(type) {
-				case TESTYPE_ACHR: ProcessActor(id, mod); break;
-				case TESTYPE_NPC_: ProcessActorBase(id, mod); break;
+		if (!IsRecordType(type, RecordType::GRUP) && IsTypeToCheck(type)) {
+			switch(static_cast<RecordType>(type)) {
+				case RecordType::ACHR: ProcessActor(id, mod); break;
+				case RecordType::NPC_: ProcessActorBase(id, mod); break;
+			default:
+				break;
 			}
 
 			return true;

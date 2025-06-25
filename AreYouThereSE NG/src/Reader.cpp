@@ -2,15 +2,6 @@
 #include "Reader.h"
 
 namespace BeinzPlugin {
-	inline bool StreamFailed(std::ifstream& stream) {
-		return !stream.good() || stream.eof() || stream.fail();
-	}
-
-	inline bool SeekAndCheck(std::ifstream& stream, std::size_t offset) {
-		stream.seekg(static_cast<std::istream::off_type>(offset), std::ios::beg);
-		return !StreamFailed(stream);
-	}
-
 	Reader::Reader(std::string_view fileName) {
 		m_Stream.open(fileName.data(), std::ios::in | std::ios::binary);
 	}
@@ -21,13 +12,12 @@ namespace BeinzPlugin {
 
 	bool Reader::Read(Field& field, std::size_t offset) {
 		try {
-			if (!SeekAndCheck(m_Stream, offset)) {
+			if (!SeekAndCheck(offset)) {
 				SPDLOG_ERROR("Failed to seek to offset: {}", offset);
 				return false;
 			}
 
-			Get(field.Type);
-			Get(field.DataSize);
+			m_Stream.read(reinterpret_cast<char*>(&field), sizeof(field));
 		}
 		catch (const std::exception& ex) {
 			SPDLOG_ERROR("Exception while reading field: {}", ex.what());
@@ -43,19 +33,12 @@ namespace BeinzPlugin {
 
 	bool Reader::Read(Record& record, std::size_t offset) {
 		try {
-			if (!SeekAndCheck(m_Stream, offset)) {
+			if (!SeekAndCheck(offset)) {
 				SPDLOG_ERROR("Failed to seek to offset: {}", offset);
 				return false;
 			}
 
-			Get(record.Type);
-			Get(record.DataSize);
-			Get(record.Flags);
-			Get(record.ID);
-			Get(record.TimeStamp);
-			Get(record.Revision);
-			Get(record.Version);
-			Get(record.Unknown);
+			m_Stream.read(reinterpret_cast<char*>(&record), sizeof(record));
 		}
 		catch (const std::exception& ex) {
 			SPDLOG_ERROR("Exception while reading record: {}", ex.what());
@@ -71,18 +54,12 @@ namespace BeinzPlugin {
 
 	bool Reader::Read(Group& group, std::size_t offset) {
 		try {
-			if (!SeekAndCheck(m_Stream, offset)) {
+			if (!SeekAndCheck(offset)) {
 				SPDLOG_ERROR("Failed to seek to offset: {}", offset);
 				return false;
 			}
 
-			Get(group.Type);
-			Get(group.GroupSize);
-			Get(group.Label);
-			Get(group.GroupType);
-			Get(group.TimeStamp);
-			Get(group.Version);
-			Get(group.Unknown);
+			m_Stream.read(reinterpret_cast<char*>(&group), sizeof(group));
 		}
 		catch (const std::exception& ex) {
 			SPDLOG_ERROR("Exception while reading group: {}", ex.what());
@@ -97,6 +74,21 @@ namespace BeinzPlugin {
 	}
 
 	bool Reader::IsGood() const {
-		return m_Stream.good();
+		return m_Stream.is_open() && m_Stream.good();
+	}
+
+	bool Reader::StreamFailed() const {
+		return !m_Stream || m_Stream.fail() || m_Stream.eof();
+	}
+
+	bool Reader::SeekAndCheck(std::size_t offset) {
+		m_Stream.seekg(static_cast<std::istream::off_type>(offset), std::ios::beg);
+
+		if (StreamFailed()){
+			SPDLOG_ERROR("Failed to seek to offset: {:#x}", offset);
+			return false;
+		}
+
+		return true;
 	}
 }
