@@ -7,14 +7,16 @@ namespace BeinzPlugin {
 
 	ActorBase::ActorBase(RE::TESNPC *form) {
 		if (form) {
-			m_Form = skyrim_cast<RE::TESForm*>(form);
+			m_BaseForm = skyrim_cast<RE::TESForm*>(form);
+			m_NPCForm = form;
+
 			m_ID = form->formID;
 
 			m_Name = form->fullName.c_str() ? form->fullName.c_str() : "";
 			m_ShortName = form->shortName.c_str() ? form->shortName.c_str() : "";
 		} else {
 			m_ID = 0;
-			m_Form = nullptr;
+			m_BaseForm = nullptr;
 
 			m_Name = m_ShortName = "";
 		}
@@ -30,11 +32,12 @@ namespace BeinzPlugin {
 
 	Actor::Actor(uint32_t refID) : ActorBase(GetActorBaseForm(refID)) {
 		if (const auto form = GetActorForm(refID)) {
-			m_Form = skyrim_cast<RE::TESForm*>(form);
+			m_RefForm = skyrim_cast<RE::TESForm*>(form);
+			m_Actor = skyrim_cast<RE::Actor*>(form);
 			m_ID = refID;
 		} else {
 			m_ID = 0;
-			m_Form = nullptr;
+			m_RefForm = nullptr;
 		}
 	}
 

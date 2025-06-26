@@ -163,14 +163,14 @@ namespace BeinzPlugin {
 
 	RE::TESNPC* GetModNPC(RE::StaticFunctionTag *, uint32_t modIdx, uint32_t actorIdx) {
 		if(auto actor = GetActorBase(modIdx, actorIdx); actor)
-			return actor->Form<RE::TESNPC>();
+			return actor->GetNpcForm();
 
 		return nullptr;
 	}
 
 	RE::Actor* GetModActor(RE::StaticFunctionTag *, uint32_t modIdx, uint32_t actorIdx) {
 		if(auto actor = GetActor(modIdx, actorIdx); actor)
-			return actor->Form<RE::Actor>();
+			return actor->GetActor();
 
 		return nullptr;
 	}
@@ -221,7 +221,7 @@ namespace BeinzPlugin {
 		     actors.begin(),
 		     actors.end(),
 		     std::back_inserter(ret),
-		     [](const ActorSearchResult &res) { return res.Actor->Form<RE::Actor>(); }
+		     [](const ActorSearchResult &res) { return res.Actor->GetActor(); }
 		    );
 
 		return ret;

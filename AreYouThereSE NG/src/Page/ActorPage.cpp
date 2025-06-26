@@ -16,7 +16,7 @@ namespace BeinzPlugin {
 
 	RE::BSTArray<RE::Actor*> ActorPage::GetActors() const {
 		return GetTESContainer<RE::BSTArray<RE::Actor*>>([](const std::shared_ptr<Actor>& actor) {
-			return actor->Form<RE::Actor>();
+			return actor->GetActor();
 			});
 	}
 }
