@@ -13,7 +13,6 @@ namespace BeinzPlugin {
 	bool Reader::Read(Field& field, std::size_t offset) {
 		try {
 			if (!SeekAndCheck(offset)) {
-				SPDLOG_ERROR("Failed to seek to offset: {}", offset);
 				return false;
 			}
 
@@ -34,7 +33,6 @@ namespace BeinzPlugin {
 	bool Reader::Read(Record& record, std::size_t offset) {
 		try {
 			if (!SeekAndCheck(offset)) {
-				SPDLOG_ERROR("Failed to seek to offset: {}", offset);
 				return false;
 			}
 
@@ -55,7 +53,6 @@ namespace BeinzPlugin {
 	bool Reader::Read(Group& group, std::size_t offset) {
 		try {
 			if (!SeekAndCheck(offset)) {
-				SPDLOG_ERROR("Failed to seek to offset: {}", offset);
 				return false;
 			}
 
