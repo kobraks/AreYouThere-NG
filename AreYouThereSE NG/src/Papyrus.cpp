@@ -193,7 +193,7 @@ namespace BeinzPlugin {
 		if(actor) {
 			SPDLOG_INFO("Looking for mod having an actor: {:08X}", actor->formID);
 
-			size_t i = 0;
+			std::size_t i = 0;
 			for(const auto &mod : Plugin::GetInstance()->Mods) {
 				if(mod->Contains(actor->formID)) {
 					SPDLOG_DEBUG("Mod \"{}\", has actor: {:08X}", mod->CombinedName(), actor->formID);

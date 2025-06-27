@@ -23,14 +23,14 @@ namespace BeinzPlugin {
 		bool IsLight() const { return m_IsLight; }
 		bool Contains(uint32_t id) const;
 
-		size_t ActorCount() const { return m_Actors.size(); }
-		size_t NPCCount() const { return m_ActorBases.size(); }
+		std::size_t ActorCount() const { return m_Actors.size(); }
+		std::size_t NPCCount() const { return m_ActorBases.size(); }
 
-		const std::shared_ptr<Actor> GetActor(size_t index) const;
-		const std::shared_ptr<ActorBase> GetActorBase(size_t index) const;
+		const std::shared_ptr<Actor> GetActor(std::size_t index) const;
+		const std::shared_ptr<ActorBase> GetActorBase(std::size_t index) const;
 
-		std::shared_ptr<Actor> GetActor(size_t index);
-		std::shared_ptr<ActorBase> GetActorBase(size_t index);
+		std::shared_ptr<Actor> GetActor(std::size_t index);
+		std::shared_ptr<ActorBase> GetActorBase(std::size_t index);
 
 		const std::vector<std::shared_ptr<Actor>>& GetActors() const { return m_Actors; }
 		const std::vector<std::shared_ptr<ActorBase>>& GetActorBases() const { return m_ActorBases; }
@@ -41,8 +41,8 @@ namespace BeinzPlugin {
 
 	private:
 		void ParseESP(std::string_view fileName, const RE::TESFile &mod);
-		uint32_t ProcessGroup(Reader &reader, size_t offset, const RE::TESFile &mod, bool isRoot = false);
-		uint32_t ProcessRecords(Reader &reader, uint32_t groupSize, size_t offset, const RE::TESFile &mod);
+		uint32_t ProcessGroup(Reader &reader, std::size_t offset, const RE::TESFile &mod, bool isRoot = false);
+		uint32_t ProcessRecords(Reader &reader, uint32_t groupSize, std::size_t offset, const RE::TESFile &mod);
 		bool ProcessRecord(uint32_t id, int32_t type, const RE::TESFile &mod);
 
 		void ProcessActor(uint32_t id, const RE::TESFile &mod);

@@ -15,7 +15,7 @@ namespace BeinzPlugin {
 		}
 
 		auto &pages  = Pages[searchIndex];
-		auto &result = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
+		const auto &result = FindCharacter::GetInstance()->GetSearchResult(searchIndex);
 
 		const auto count = HowManyPages(result.size(), m_PageSize);
 

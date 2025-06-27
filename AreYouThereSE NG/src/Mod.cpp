@@ -104,28 +104,28 @@ namespace BeinzPlugin {
 		return false;
 	}
 
-	const std::shared_ptr<Actor> Mod::GetActor(size_t index) const {
+	const std::shared_ptr<Actor> Mod::GetActor(std::size_t index) const {
 		if(index < m_Actors.size())
 			return m_Actors[index];
 
 		return nullptr;
 	}
 
-	const std::shared_ptr<ActorBase> Mod::GetActorBase(size_t index) const {
+	const std::shared_ptr<ActorBase> Mod::GetActorBase(std::size_t index) const {
 		if(index < m_ActorBases.size())
 			return m_ActorBases[index];
 
 		return nullptr;
 	}
 
-	std::shared_ptr<Actor> Mod::GetActor(size_t index) {
+	std::shared_ptr<Actor> Mod::GetActor(std::size_t index) {
 		if(index < m_Actors.size())
 			return m_Actors[index];
 
 		return nullptr;
 	}
 
-	std::shared_ptr<ActorBase> Mod::GetActorBase(size_t index) {
+	std::shared_ptr<ActorBase> Mod::GetActorBase(std::size_t index) {
 		if(index < m_ActorBases.size())
 			return m_ActorBases[index];
 
@@ -139,7 +139,7 @@ namespace BeinzPlugin {
 			return;
 		}
 
-		size_t offset = 0;
+		std::size_t offset = 0;
 		if(Record record{}; reader.Read(record, offset)) {
 			if(IsRecordType(record.Type, RecordType::TES4)) {
 				offset = RECORD_HEADER_SIZE + record.DataSize;
@@ -154,7 +154,7 @@ namespace BeinzPlugin {
 		}
 	}
 
-	uint32_t Mod::ProcessGroup(Reader &reader, size_t offset, const RE::TESFile &mod, bool isRoot) {
+	uint32_t Mod::ProcessGroup(Reader &reader, std::size_t offset, const RE::TESFile &mod, bool isRoot) {
 		if(Group group{}; reader.Read(group, offset)) {
 			if(!IsRecordType(group.Type, RecordType::GRUP))
 				return 0;
@@ -168,14 +168,14 @@ namespace BeinzPlugin {
 		return 0;
 	}
 
-	uint32_t Mod::ProcessRecords(Reader &reader, uint32_t groupSize, size_t offset, const RE::TESFile &mod) {
+	uint32_t Mod::ProcessRecords(Reader &reader, uint32_t groupSize, std::size_t offset, const RE::TESFile &mod) {
 		Record record{};
 		uint32_t recordSize = 0;
 
-		for(size_t groupOffset = RECORD_HEADER_SIZE; groupOffset < groupSize; groupOffset += (IsRecordType(record.Type, RecordType::GRUP)
+		for(std::size_t groupOffset = RECORD_HEADER_SIZE; groupOffset < groupSize; groupOffset += (IsRecordType(record.Type, RecordType::GRUP)
 			    ? record.DataSize
 			    : recordSize)) {
-			const size_t newOffset = offset + groupOffset;
+			const std::size_t newOffset = offset + groupOffset;
 			if(!reader.Read(record, newOffset))
 				return 0;
 

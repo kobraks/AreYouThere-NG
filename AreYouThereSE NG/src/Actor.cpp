@@ -1,7 +1,25 @@
 #include "pch.h"
 #include "Actor.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace BeinzPlugin {
+	FullName::FullName(RE::TESNPC* form) {
+		if (form) {
+			Name = !form->fullName.empty() ? form->fullName : "";
+			ShortName = !form->shortName.empty() ? form->shortName : "";
+		} else {
+			Name = ShortName = "";
+		}
+	}
+
+	FullName::FullName(const std::string& name, const std::string& shortName) : Name(name), ShortName(shortName) {
+	}
+
+	FullName FullName::ToUpper() const {
+		return { boost::trim_copy(boost::to_upper_copy(Name)), boost::trim_copy(boost::to_upper_copy(ShortName)) };
+	}
+
 	ActorBase::ActorBase(uint32_t id) : ActorBase(GetNpcForm(id)) {
 	}
 
@@ -12,13 +30,13 @@ namespace BeinzPlugin {
 
 			m_ID = form->formID;
 
-			m_Name = form->fullName.c_str() ? form->fullName.c_str() : "";
-			m_ShortName = form->shortName.c_str() ? form->shortName.c_str() : "";
+			m_Name = FullName(form);
+			m_UpperName = m_Name.ToUpper();
 		} else {
 			m_ID = 0;
 			m_BaseForm = nullptr;
 
-			m_Name = m_ShortName = "";
+			m_UpperName = m_Name = FullName("", "");
 		}
 	}
 
@@ -34,9 +52,9 @@ namespace BeinzPlugin {
 		if (const auto form = GetActorForm(refID)) {
 			m_RefForm = skyrim_cast<RE::TESForm*>(form);
 			m_Actor = skyrim_cast<RE::Actor*>(form);
-			m_ID = refID;
+			m_RefID = refID;
 		} else {
-			m_ID = 0;
+			m_RefID = 0;
 			m_RefForm = nullptr;
 		}
 	}

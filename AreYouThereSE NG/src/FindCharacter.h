@@ -5,24 +5,24 @@ namespace BeinzPlugin {
 	class Actor;
 
 	struct ActorSearchResult {
-		size_t ModIndex;
+		std::size_t ModIndex;
 		std::shared_ptr<Mod> Mod;
 		std::shared_ptr<Actor> Actor;
 	};
 
 	using ActorSearchResultTableT   = std::vector<ActorSearchResult>;
 	using ActorSearchResultCacheT   = std::vector<ActorSearchResultTableT>;
-	using ActorSearchResultResultsT = std::unordered_map<std::string, size_t>;
+	using ActorSearchResultResultsT = std::unordered_map<std::string, std::size_t>;
 
 	class FindCharacter {
 	public:
-		size_t FindCharacters(const char *name);
+		std::size_t FindCharacters(const char *name);
 
 		const ActorSearchResultCacheT& GetCache() const { return m_Cache; }
 		ActorSearchResultCacheT& GetCache() { return m_Cache; }
 
-		const ActorSearchResultTableT &GetSearchResult(size_t index) const;
-		ActorSearchResultTableT &GetSearchResult(size_t index);
+		const ActorSearchResultTableT &GetSearchResult(std::size_t index) const;
+		ActorSearchResultTableT &GetSearchResult(std::size_t index);
 
 		static FindCharacter* GetInstance();
 		static void Clear();

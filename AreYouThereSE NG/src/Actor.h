@@ -1,13 +1,27 @@
 #pragma once
 
 namespace BeinzPlugin {
+	struct FullName {
+		std::string Name;
+		std::string ShortName;
+
+		FullName() = default;
+		FullName(RE::TESNPC* form);
+		FullName(const std::string &name, const std::string &shortName);
+
+		FullName ToUpper() const;
+	};
+
 	class ActorBase {
 	public:
 		ActorBase(uint32_t id);
 
 		uint32_t ID() const { return m_ID; }
-		const std::string &ShortName() const { return m_ShortName; }
-		const std::string &Name() const { return m_Name; }
+		const std::string &ShortName() const { return m_Name.ShortName; }
+		const std::string &Name() const { return m_Name.Name; }
+
+		const std::string& UpperName() const { return m_UpperName.Name; }
+		const std::string& UpperShortName() const { return m_UpperName.ShortName; }
 
 		RE::TESForm* Form() { return m_BaseForm; }
 		const RE::TESForm *Form() const { return m_BaseForm; }
@@ -41,8 +55,8 @@ namespace BeinzPlugin {
 
 		uint32_t m_ID = 0;
 
-		std::string m_Name;
-		std::string m_ShortName;
+		FullName m_Name;
+		FullName m_UpperName;
 	};
 
 	class Actor : public ActorBase{
@@ -52,10 +66,10 @@ namespace BeinzPlugin {
 		bool IsValid() const { return m_RefForm; }
 
 		constexpr bool operator==(const Actor &other) const {
-			return other.m_ID == m_ID && other.BaseID() == BaseID();
+			return other.m_RefID == m_RefID && other.BaseID() == BaseID();
 		}
 
-		uint32_t ID() const { return m_ID; }
+		uint32_t ID() const { return m_RefID; }
 		uint32_t BaseID() const { return ActorBase::ID(); }
 
 		const RE::TESForm* GetBaseForm() const { return ActorBase::Form(); }
@@ -82,7 +96,7 @@ namespace BeinzPlugin {
 		static RE::TESObjectREFR* GetActorForm(uint32_t refID);
 		static RE::TESNPC* GetActorBaseForm(uint32_t refId);
 	private:
-		uint32_t m_ID = 0;
+		uint32_t m_RefID = 0;
 		RE::TESForm* m_RefForm { nullptr };
 		RE::Actor* m_Actor{ nullptr }; // Skyrims Actor Form, not the base form
 	};

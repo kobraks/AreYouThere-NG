@@ -10,7 +10,7 @@
 namespace BeinzPlugin {
 	ActorSearchResultTableT FindCharacter::m_Empty{};
 
-	size_t FindCharacter::FindCharacters(const char *name) {
+	std::size_t FindCharacter::FindCharacters(const char *name) {
 		std::string sName = name;
 		boost::trim(sName);
 		boost::to_upper(sName);
@@ -27,7 +27,7 @@ namespace BeinzPlugin {
 		return m_Results.emplace(sName, m_Cache.size() - 1).first->second;
 	}
 
-	const ActorSearchResultTableT & FindCharacter::GetSearchResult(size_t index) const {
+	const ActorSearchResultTableT & FindCharacter::GetSearchResult(std::size_t index) const {
 		if (index < m_Cache.size()) {
 			return m_Cache.at(index);
 		}
@@ -37,7 +37,7 @@ namespace BeinzPlugin {
 		return m_Empty;
 	}
 
-	ActorSearchResultTableT & FindCharacter::GetSearchResult(size_t index) {
+	ActorSearchResultTableT & FindCharacter::GetSearchResult(std::size_t index) {
 		if (index < m_Cache.size())
 			return m_Cache.at(index);
 
@@ -60,13 +60,11 @@ namespace BeinzPlugin {
 	ActorSearchResultTableT FindCharacter::Find(const std::string_view name) {
 		ActorSearchResultTableT table;
 
-		size_t i = 0;
+		std::size_t i = 0;
 		for (const auto &mod : Plugin::GetInstance()->Mods) {
 			for (const auto &actor : mod->GetActors()) {
-				std::string actorName = actor->Name();
-				boost::trim(actorName);
-				boost::to_upper(actorName);
-				if (actorName.find(name) != std::string::npos)
+				const std::string_view actorName = actor->UpperName();
+				if (actorName.find(name) != std::string_view::npos)
 					table.emplace_back(i, mod, actor);
 			}
 

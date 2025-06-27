@@ -11,8 +11,8 @@ namespace BeinzPlugin {
 	inline constexpr REL::Version VERSION { 1, 0, 0 };
 	constexpr auto NAME = "AreYouThere NG"sv;
 
-	inline constexpr size_t PAGE_ITEMS  = 64;
-	inline constexpr size_t PAGE_ACTORS = 100;
+	inline constexpr std::size_t PAGE_ITEMS  = 64;
+	inline constexpr std::size_t PAGE_ACTORS = 100;
 
 	class Plugin {
 	public:
@@ -20,8 +20,8 @@ namespace BeinzPlugin {
 
 		bool InitMods();
 
-		size_t ActorCount = 0;
-		size_t NPCCount = 0;
+		std::size_t ActorCount = 0;
+		std::size_t NPCCount = 0;
 
 		std::vector<std::shared_ptr<Mod>> Mods;
 
