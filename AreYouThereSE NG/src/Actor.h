@@ -36,10 +36,10 @@ namespace BeinzPlugin {
 		ActorBase(RE::TESNPC *form);
 
 	private:
-		RE::TESForm *m_BaseForm;
+		RE::TESForm *m_BaseForm { nullptr };
 		RE::TESNPC* m_NPCForm{ nullptr }; // Skyrims NPC Form, not the base form
 
-		uint32_t m_ID;
+		uint32_t m_ID = 0;
 
 		std::string m_Name;
 		std::string m_ShortName;
@@ -82,8 +82,8 @@ namespace BeinzPlugin {
 		static RE::TESObjectREFR* GetActorForm(uint32_t refID);
 		static RE::TESNPC* GetActorBaseForm(uint32_t refId);
 	private:
-		uint32_t m_ID;
-		RE::TESForm* m_RefForm;
+		uint32_t m_ID = 0;
+		RE::TESForm* m_RefForm { nullptr };
 		RE::Actor* m_Actor{ nullptr }; // Skyrims Actor Form, not the base form
 	};
 
