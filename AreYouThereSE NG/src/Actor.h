@@ -17,11 +17,16 @@ namespace BeinzPlugin {
 		ActorBase(uint32_t id);
 
 		uint32_t ID() const { return m_ID; }
+
 		const std::string &ShortName() const { return m_Name.ShortName; }
 		const std::string &Name() const { return m_Name.Name; }
 
+		const FullName& GetFullName() const { return m_Name; }
+
 		const std::string& UpperName() const { return m_UpperName.Name; }
 		const std::string& UpperShortName() const { return m_UpperName.ShortName; }
+
+		const FullName& GetUpperFullName() const { return m_UpperName; }
 
 		RE::TESForm* Form() { return m_BaseForm; }
 		const RE::TESForm *Form() const { return m_BaseForm; }
