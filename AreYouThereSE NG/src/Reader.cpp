@@ -3,7 +3,7 @@
 
 namespace BeinzPlugin {
 	Reader::Reader(std::string_view fileName) {
-		m_Stream.open(fileName.data(), std::ios::in | std::ios::binary);
+		m_Stream.open(fileName, std::ios::in | std::ios::binary);
 	}
 
 	Reader::~Reader() {
