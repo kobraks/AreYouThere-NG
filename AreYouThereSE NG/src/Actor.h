@@ -28,11 +28,17 @@ namespace BeinzPlugin {
 
 		const FullName& GetUpperFullName() const { return m_UpperName; }
 
+		std::string GetEditorID() const;
+
+		std::string GetNameOrEditorID() const;
+
 		RE::TESForm* Form() { return m_BaseForm; }
 		const RE::TESForm *Form() const { return m_BaseForm; }
 
 		RE::TESNPC* GetNpcForm() { return m_NPCForm; }
 		const RE::TESNPC* GetNpcForm() const { return m_NPCForm; }
+
+		bool HasKeyword(RE::BGSKeyword* keyword) const;
 
 		bool IsValid() const { return m_BaseForm; }
 
@@ -56,7 +62,7 @@ namespace BeinzPlugin {
 
 	private:
 		RE::TESForm *m_BaseForm { nullptr };
-		RE::TESNPC* m_NPCForm{ nullptr }; // Skyrims NPC Form, not the base form
+		RE::TESNPC* m_NPCForm{ nullptr }; // Skyrims NPC Form
 
 		uint32_t m_ID = 0;
 
@@ -82,6 +88,9 @@ namespace BeinzPlugin {
 
 		const RE::TESForm* GetRefForm() const { return m_RefForm; }
 		RE::TESForm* GetRefForm() { return m_RefForm; }
+
+		bool HasKeyword(RE::BGSKeyword* keyword) const;
+		bool IsDead() const;
 
 		template<typename  T>
 		std::add_pointer_t<std::remove_pointer_t<T>> GetRefForm() { return skyrim_cast<std::add_pointer_t<std::remove_pointer_t<T>>>(m_RefForm); }

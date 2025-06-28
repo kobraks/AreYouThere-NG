@@ -40,10 +40,27 @@ namespace BeinzPlugin {
 		}
 	}
 
+	std::string ActorBase::GetEditorID() const {
+		if (m_NPCForm) {
+			return m_NPCForm->GetFormEditorID();
+		}
+
+		return "";
+	}
+
+	std::string ActorBase::GetNameOrEditorID() const {
+		if (m_Name.Name.empty())
+			return GetEditorID();
+		return m_Name.Name;
+	}
+
+	bool ActorBase::HasKeyword(RE::BGSKeyword* keyword) const {
+		return keyword && m_NPCForm && m_NPCForm->HasKeyword(keyword);
+	}
+
 	RE::TESNPC * ActorBase::GetNpcForm(uint32_t baseID) {
 		if (auto form = RE::TESForm::LookupByID(baseID); form && form->formType == RE::FormType::NPC)
-			if (auto npc = skyrim_cast<RE::TESNPC*>(form); npc)
-				return npc;
+			return skyrim_cast<RE::TESNPC*>(form);
 
 		return nullptr;
 	}
@@ -59,6 +76,17 @@ namespace BeinzPlugin {
 		}
 	}
 
+	bool Actor::HasKeyword(RE::BGSKeyword* keyword) const {
+		return keyword && m_Actor && m_Actor->HasKeyword(keyword);
+	}
+
+	bool Actor::IsDead() const {
+		if (m_Actor)
+			return m_Actor->IsDead();
+
+		return false;
+	}
+
 	RE::TESObjectREFR * Actor::GetActorForm(uint32_t refID) {
 		if (auto actor = skyrim_cast<RE::TESObjectREFR*>(RE::TESForm::LookupByID(refID)); actor && actor->formType == RE::FormType::ActorCharacter)
 			return actor;
@@ -67,13 +95,10 @@ namespace BeinzPlugin {
 	}
 
 	RE::TESNPC * Actor::GetActorBaseForm(uint32_t refId) {
-		if (auto actor = GetActorForm(refId); actor) {
-			if (auto form = skyrim_cast<RE::TESForm*>(actor->GetBaseObject()); form && form->formType == RE::FormType::NPC) {
-				if (auto npc = skyrim_cast<RE::TESNPC*>(form))
-					return npc;
-			}
+		if (auto actor = GetActorForm(refId)) {
+			if (auto base = skyrim_cast<RE::TESNPC*>(actor->GetBaseObject()); base && base->formType == RE::FormType::NPC)
+				return base;
 		}
-
 		return nullptr;
 	}
 }
