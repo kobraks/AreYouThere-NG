@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Papyrus.h"
 
-#include "PapyrusHelper.h"
 #include "Plugin.h"
 #include "Mod.h"
 #include "Actor.h"
-#include "PapyrusCommon.h"
+
 #include "Pages/ModPages.h"
+
+#include "Papyrus/PapyrusCommon.h"
+#include "Papyrus/PapyrusHelper.h"
 
 namespace BeinzPlugin::Papyrus {
 	uint32_t GetTotalModCount(RE::StaticFunctionTag*) {

@@ -5,7 +5,6 @@
 #include <vector>
 #include <memory>
 
-
 namespace BeinzPlugin {
 	template <typename TKey, typename TPage>
 	class TypedPages {

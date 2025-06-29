@@ -2,7 +2,8 @@
 #include "Papyrus.h"
 
 #include "Plugin.h"
-#include "PapyrusCommon.h"
+
+#include "Papyrus/PapyrusCommon.h"
 
 namespace BeinzPlugin::Papyrus {
 	bool InitMods(RE::StaticFunctionTag*) {

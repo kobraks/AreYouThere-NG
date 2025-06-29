@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PapyrusHelper.h"
+
 #include "Plugin.h"
 
 #include "Actor.h"

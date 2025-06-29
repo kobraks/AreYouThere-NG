@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "Mod.h"
 
+#include "Actor.h"
+#include "Reader.h"
+
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include <array>
-
-#include "Actor.h"
 
 constexpr std::size_t RECORD_HEADER_SIZE = 0x18;
 

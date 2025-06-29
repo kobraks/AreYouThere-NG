@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string_view>
-
 namespace BeinzPlugin::Papyrus {
 	bool RegisterActor(RE::BSScript::IVirtualMachine* vm);
 	bool RegisterMod(RE::BSScript::IVirtualMachine* vm);

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Reader.h"
-
 #include <cstdint>
 #include <string_view>
 
@@ -11,6 +9,7 @@
 namespace BeinzPlugin {
 	class Actor;
 	class ActorBase;
+	class Reader;
 
 	class Mod {
 	public:

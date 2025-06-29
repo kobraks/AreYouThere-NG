@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Papyrus.h"
 
-#include "FindCharacter.h"
 #include "Actor.h"
 #include "Mod.h"
-#include "PapyrusCommon.h"
 #include "Utils.h"
+#include "FindCharacter.h"
+
 #include "Pages/FoundActorPages.h"
+
+#include "Papyrus/PapyrusCommon.h"
 
 namespace BeinzPlugin::Papyrus {
 	uint32_t FindCharactersByName(RE::StaticFunctionTag*, RE::BSFixedString name) {

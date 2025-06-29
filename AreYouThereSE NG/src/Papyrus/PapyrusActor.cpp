@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Papyrus.h"
 
-#include "PapyrusHelper.h"
 #include "Plugin.h"
 #include "Mod.h"
-#include "PapyrusCommon.h"
+
 #include "Pages/ActorBasePages.h"
 #include "Pages/ActorPages.h"
+
+#include "Papyrus/PapyrusHelper.h"
+#include "Papyrus/PapyrusCommon.h"
 
 namespace BeinzPlugin::Papyrus {
 	uint32_t GetTotalActors(RE::StaticFunctionTag*) {

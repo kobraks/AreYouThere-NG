@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Papyrus.h"
-#include "PapyrusCommon.h"
+
+#include "Papyrus/PapyrusCommon.h"
 
 namespace BeinzPlugin::Papyrus {
 	void WriteInfoLog(RE::StaticFunctionTag*, RE::BSFixedString message) {

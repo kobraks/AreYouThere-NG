@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "Pages/FoundActorPages.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "FindCharacter.h"
 #include "Plugin.h"
 #include "Utils.h"
+
+#include <boost/algorithm/string.hpp>
 
 namespace BeinzPlugin {
 	void FoundActorPages::Generate(size_t searchIndex) {
