@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Plugin.h"
-#include "Papyrus.h"
+#include "PapyrusRegistration.h"
 
 #ifndef NDEBUG
 #include <spdlog/sinks/msvc_sink.h>
@@ -70,7 +70,7 @@ namespace {
 
 		SKSE::Init(skse);
 
-		if (SKSE::GetPapyrusInterface() && SKSE::GetPapyrusInterface()->Register(BeinzPlugin::RegisterFuncs))
+		if (SKSE::GetPapyrusInterface() && SKSE::GetPapyrusInterface()->Register(BeinzPlugin::PapyrusRegistration::Register))
 			return true;
 
 		return false;

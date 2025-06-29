@@ -3,6 +3,7 @@
 
 #include "Plugin.h"
 #include "Mod.h"
+#include "Actor.h"
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>

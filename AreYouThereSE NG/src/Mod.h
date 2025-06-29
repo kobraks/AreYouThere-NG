@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Actor.h"
 #include "Reader.h"
 
 #include <cstdint>
@@ -10,6 +9,9 @@
 #include <vector>
 
 namespace BeinzPlugin {
+	class Actor;
+	class ActorBase;
+
 	class Mod {
 	public:
 		explicit Mod(const RE::TESFile &file);

@@ -6,6 +6,8 @@
 
 #include <array>
 
+#include "Actor.h"
+
 constexpr std::size_t RECORD_HEADER_SIZE = 0x18;
 
 namespace {
