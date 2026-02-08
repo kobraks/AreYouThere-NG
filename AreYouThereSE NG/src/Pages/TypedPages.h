@@ -5,6 +5,9 @@
 #include <vector>
 #include <memory>
 
+#include <RE/B/BSTArray.h>
+#include <RE/B/BSFixedString.h>
+
 namespace BeinzPlugin {
 	template <typename TKey, typename TPage>
 	class TypedPages {
@@ -34,9 +37,14 @@ namespace BeinzPlugin {
 		RE::BSTArray<RE::BSFixedString> GetNames(TKey key) const {
 			if (auto it = Pages.find(key); it != Pages.end()) {
 				const auto& vec = it->second;
-				return CopyPage<RE::BSTArray<RE::BSFixedString>>(vec, m_PageSize, [](const auto& page) {
-					return page->GenerateName();
+
+				if (!m_Cached) {
+					m_CachedNames = CopyPage<RE::BSTArray<RE::BSFixedString>>(vec, m_PageSize, [](const auto& page) {
+						return page->GenerateName();
 					});
+					m_Cached = true;
+				}
+				return m_CachedNames;
 			}
 
 			return GetEmptyNamesList();
@@ -46,9 +54,17 @@ namespace BeinzPlugin {
 
 		void Clear() {
 			Pages.clear();
+			ClearCache();
+		}
+
+		void ClearCache() {
+			m_Cached = false;
+			m_CachedNames.clear();
 		}
 
 	protected:
 		std::size_t m_PageSize;
+		mutable bool m_Cached = false;
+		mutable RE::BSTArray<RE::BSFixedString> m_CachedNames;
 	};
 }

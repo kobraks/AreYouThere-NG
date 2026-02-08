@@ -1,5 +1,11 @@
 #pragma once
 
+#include <cstdint>
+#include <array>
+#include <algorithm>
+
+#include <RE/B/BSTArray.h>
+
 namespace BeinzPlugin {
 	constexpr std::size_t HowManyPages(const std::size_t items, const std::size_t pageSize) {
 		return (items / pageSize) + ((items % pageSize) ? 1 : 0);

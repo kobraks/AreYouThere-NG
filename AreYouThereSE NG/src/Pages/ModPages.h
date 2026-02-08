@@ -13,5 +13,10 @@ namespace BeinzPlugin {
 
 		static ModPages *GetInstance();
 		static void Clear();
+
+		static void ClearCached();
+	private:
+		RE::BSTArray<RE::BSFixedString> m_CachedNames;
+		bool m_Cached = false;
 	};
 }

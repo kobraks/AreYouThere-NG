@@ -14,7 +14,7 @@ namespace BeinzPlugin {
 
 	void ModPages::Generate() {
 		if(Pages.empty()) {
-			auto mods = Plugin::GetInstance()->Mods;
+			auto& mods = Plugin::GetInstance()->Mods;
 
 			const size_t count = HowManyPages(mods.size(), PAGE_ITEMS);
 
@@ -35,13 +35,14 @@ namespace BeinzPlugin {
 		if(Pages.empty()) {
 			return GetEmptyNamesList();
 		}
-		return CopyPage<RE::BSTArray<RE::BSFixedString>>(
-		                                                 Pages,
-		                                                 PAGE_ITEMS,
-		                                                 [](const std::shared_ptr<ModPage> &page) {
-			                                                 return page->GenerateName();
-		                                                 }
-		                                                );
+		if (!m_Cached) {
+			m_CachedNames = CopyPage<RE::BSTArray<RE::BSFixedString>>(Pages, PAGE_ITEMS, [](const auto& page) {
+				return page->GenerateName();
+			});
+			m_Cached = true;
+		}
+
+		return m_CachedNames;
 	}
 
 	ModPages* ModPages::GetInstance() {
@@ -52,5 +53,12 @@ namespace BeinzPlugin {
 
 	void ModPages::Clear() {
 		GetInstance()->Pages.clear();
+		ClearCached();
+	}
+
+	void ModPages::ClearCached() {
+		auto instance = GetInstance();
+		instance->m_Cached = false;
+		instance->m_CachedNames.clear();
 	}
 }
