@@ -8,25 +8,42 @@ workspace "AreYouThere"
     configurations {
         "Debug",
         "Release",
-        "Dist",
     }
 
     solution_items {
         ".editorconfig"
     }
 
-    flags {
-         "MultiProcessorCompile"
-    }
-	
 	defines {
         "ENABLE_SKYRIM_AE",
 	}
+
+    multiprocessorcompile "on"
+    staticruntime "off"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 filter ("action:vs*")
     buildoptions {"/utf-8"}
+
+filter ("system:windows", "action:vs*")
+	characterset "Unicode"
+
+filter ("configurations:Debug")
+	runtime "Debug"
+	symbols "On"
+	optimize "Off"
+
+	defines { "DEBUG" }
+
+filter ("configurations:Release")
+	runtime "Release"
+	symbols "Off"
+	optimize "On"
+
+	defines { "NDEBUG" }
+
+    filter {}
 
 group "Dependencies"
     include "vendor/premake"
