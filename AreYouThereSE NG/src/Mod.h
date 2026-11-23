@@ -42,7 +42,6 @@ namespace BeinzPlugin {
 
 	private:
 		void ParseESP(std::string_view fileName, const RE::TESFile &mod);
-		uint32_t ProcessGroup(Reader &reader, std::size_t offset, const RE::TESFile &mod, bool isRoot = false);
 		uint32_t ProcessRecords(Reader &reader, uint32_t groupSize, std::size_t offset, const RE::TESFile &mod);
 		bool ProcessRecord(uint32_t id, int32_t type, const RE::TESFile &mod);
 

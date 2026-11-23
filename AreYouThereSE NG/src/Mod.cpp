@@ -8,6 +8,8 @@
 #include <spdlog/spdlog.h>
 
 #include <array>
+#include <filesystem>
+#include <limits>
 
 constexpr std::size_t RECORD_HEADER_SIZE = 0x18;
 
@@ -136,56 +138,82 @@ namespace BeinzPlugin {
 	}
 
 	void Mod::ParseESP(std::string_view fileName, const RE::TESFile &mod) {
-		Reader reader(fileName);
-		if(!reader.IsGood()) {
-			SPDLOG_ERROR("Unable to parse: \"{}\"", fileName);
+		std::error_code error;
+		const auto fileSize = std::filesystem::file_size(std::filesystem::path(fileName), error);
+
+		if (error || fileSize > std::numeric_limits<std::size_t>::max()) {
+			SPDLOG_ERROR("Unable to determine the size of \"{}\"", fileName);
 			return;
 		}
 
-		std::size_t offset = 0;
-		if(Record record{}; reader.Read(record, offset)) {
-			if(IsRecordType(record.Type, RecordType::TES4)) {
-				offset = RECORD_HEADER_SIZE + record.DataSize;
+		Reader reader(fileName);
+		if(!reader.IsGood()) {
+			SPDLOG_ERROR("Unable to open: \"{}\"", fileName);
+			return;
+		}
 
-				uint32_t groupSize = 0;
-				do {
-					groupSize = ProcessGroup(reader, offset, mod, true);
-					offset += groupSize;
-				}
-				while(groupSize);
+		const auto size = static_cast<std::size_t>(fileSize);
+		Record header{};
+
+		if (size < RECORD_HEADER_SIZE || !reader.Read(header, 0) || !IsRecordType(header.Type, RecordType::TES4) || header.DataSize > size - RECORD_HEADER_SIZE) {
+			SPDLOG_ERROR("Invalid TES4 header in \"{}\"", fileName);
+			return;
+		}
+
+		std::size_t offset = RECORD_HEADER_SIZE + header.DataSize;
+		while (offset < size) {
+			const auto remaining = size - offset;
+			Group group{};
+
+			if (remaining < RECORD_HEADER_SIZE || !reader.Read(group, offset) || !IsRecordType(group.Type, RecordType::GRUP) || group.GroupSize < RECORD_HEADER_SIZE || group.GroupSize > remaining) {
+				SPDLOG_ERROR("Invalid top-level group in \"{}\" at {:#x}", fileName, offset);
+				return;
 			}
+
+			if (IsRootToCheck(group.Label) && ProcessRecords(reader, group.GroupSize, offset, mod) == 0) {
+				return;
+			}
+
+			offset += group.GroupSize;
 		}
-	}
-
-	uint32_t Mod::ProcessGroup(Reader &reader, std::size_t offset, const RE::TESFile &mod, bool isRoot) {
-		if(Group group{}; reader.Read(group, offset)) {
-			if(!IsRecordType(group.Type, RecordType::GRUP))
-				return 0;
-
-			if(isRoot && !IsRootToCheck(group.Label))
-				return group.GroupSize;
-
-			return ProcessRecords(reader, group.GroupSize, offset, mod);
-		}
-
-		return 0;
 	}
 
 	uint32_t Mod::ProcessRecords(Reader &reader, uint32_t groupSize, std::size_t offset, const RE::TESFile &mod) {
-		Record record{};
-		uint32_t recordSize = 0;
+		std::size_t groupOffset = RECORD_HEADER_SIZE;
 
-		for(std::size_t groupOffset = RECORD_HEADER_SIZE; groupOffset < groupSize; groupOffset += (IsRecordType(record.Type, RecordType::GRUP)
-			    ? record.DataSize
-			    : recordSize)) {
-			const std::size_t newOffset = offset + groupOffset;
-			if(!reader.Read(record, newOffset))
+		while (groupOffset < groupSize) {
+			const auto remaining = groupSize - groupOffset;
+			const auto recordOffset = offset + groupOffset;
+			Record record{};
+
+			if (remaining < RECORD_HEADER_SIZE || !reader.Read(record, recordOffset)) {
+				SPDLOG_ERROR("Incomplete record header in \"{}\" at {:#x}", mod.fileName, recordOffset);
+
 				return 0;
+			}
 
-			recordSize = RECORD_HEADER_SIZE + record.DataSize;
+			if (IsRecordType(record.Type, RecordType::GRUP)) {
+				const auto childSize = record.DataSize;
+				if (childSize < RECORD_HEADER_SIZE || childSize > remaining) {
+					SPDLOG_ERROR("Invalid nested group size in \"{}\" at {:x}", mod.fileName, recordOffset);
 
-			if(!ProcessRecord(record.ID, record.Type, mod))
-				ProcessGroup(reader, newOffset, mod);
+					return 0;
+				}
+
+				if (ProcessRecords(reader, childSize, recordOffset, mod) == 0) {
+					return 0;
+				}
+
+				groupOffset += childSize;
+			} else {
+				if (record.DataSize > remaining - RECORD_HEADER_SIZE) {
+					SPDLOG_ERROR("Record exceeds its group in \"{}\" at {:#x}", mod.fileName, recordOffset);
+					return 0;
+				}
+
+				ProcessRecord(record.ID, record.Type, mod);
+				groupOffset += RECORD_HEADER_SIZE + record.DataSize;
+			}
 		}
 
 		return groupSize;

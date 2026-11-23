@@ -16,7 +16,7 @@ namespace BeinzPlugin {
 				return false;
 			}
 
-			m_Stream.read(reinterpret_cast<char*>(&field), sizeof(field));
+			return static_cast<bool>(m_Stream.read(reinterpret_cast<char*>(&field), sizeof(field)));
 		}
 		catch (const std::exception& ex) {
 			SPDLOG_ERROR("Exception while reading field: {}", ex.what());
@@ -26,8 +26,6 @@ namespace BeinzPlugin {
 			SPDLOG_ERROR("Unknown exception while reading field");
 			return false;
 		}
-
-		return true;
 	}
 
 	bool Reader::Read(Record& record, std::size_t offset) {
@@ -36,7 +34,7 @@ namespace BeinzPlugin {
 				return false;
 			}
 
-			m_Stream.read(reinterpret_cast<char*>(&record), sizeof(record));
+			return static_cast<bool>(m_Stream.read(reinterpret_cast<char*>(&record), sizeof(record)));
 		}
 		catch (const std::exception& ex) {
 			SPDLOG_ERROR("Exception while reading record: {}", ex.what());
@@ -46,8 +44,6 @@ namespace BeinzPlugin {
 			SPDLOG_ERROR("Unknown exception while reading record");
 			return false;
 		}
-
-		return true;
 	}
 
 	bool Reader::Read(Group& group, std::size_t offset) {
@@ -56,7 +52,7 @@ namespace BeinzPlugin {
 				return false;
 			}
 
-			m_Stream.read(reinterpret_cast<char*>(&group), sizeof(group));
+			return static_cast<bool>(m_Stream.read(reinterpret_cast<char*>(&group), sizeof(group)));
 		}
 		catch (const std::exception& ex) {
 			SPDLOG_ERROR("Exception while reading group: {}", ex.what());
@@ -66,8 +62,6 @@ namespace BeinzPlugin {
 			SPDLOG_ERROR("Unknown exception while reading group");
 			return false;
 		}
-
-		return true;
 	}
 
 	bool Reader::IsGood() const {
