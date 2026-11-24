@@ -19,6 +19,7 @@ namespace BeinzPlugin {
 		static Plugin* GetInstance();
 
 		bool InitMods();
+		void Clear();
 
 		std::size_t ActorCount = 0;
 		std::size_t NPCCount = 0;
@@ -29,7 +30,6 @@ namespace BeinzPlugin {
 		std::unordered_map<uint32_t, RE::BSScript::Array> NCCPages;
 
 	private:
-		void Clear();
 
 		void ProcessFiles(const RE::TESFileCollection &files);
 		void ProcessFiles(RE::BSTArray<RE::TESFile*> files);

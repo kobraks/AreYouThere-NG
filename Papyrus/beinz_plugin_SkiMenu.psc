@@ -229,6 +229,18 @@ event OnVersionUpdate(int version)
 endEvent
 
 event OnPageReset(string page)
+	if (m_Inited && BeinzPluginScript.GetTotalModCount() == 0)
+		m_Inited = false
+		m_SelectedMod = -1
+		m_ModsPage = 0
+		m_ActorsPage = 0
+		m_NPCPage = 0
+		m_ActorCount = 0
+		m_ModCount = 0
+		m_NPCCount = 0
+		ClearSearchCache()
+	endIf
+
 	BeinzPluginScript.WriteDebug("Page: " + page)
 	if (Pages[MCMPage_Mods] == page)
 		SetCursorFillMode(TOP_TO_BOTTOM)
@@ -669,7 +681,7 @@ event OnOptionMenuAccept(int option, int index)
 
 		while ((loop < m_ActorsPerPage) && (pageAdd + loop < m_EntriesFound))
 			int actorIndex = pageAdd + loop
-			
+
 			if (m_IdTextFindActors[loop] == option)
 				DoAction(m_ActorsFound[actorIndex], index)
 

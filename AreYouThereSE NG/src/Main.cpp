@@ -36,11 +36,23 @@ namespace {
 		auto log = std::make_shared<spdlog::logger>("global log", sinks.begin(), sinks.end());
 
 		log->set_level(level);
-		log->flush_on(level);
+		log->flush_on(spdlog::level::err);
 
 		spdlog::register_logger(log);
 		spdlog::set_default_logger(log);
 		spdlog::set_pattern("%s(%#): [%^%l%$] %!() %v");
+	}
+
+	void OnSKSEMessage(SKSE::MessagingInterface::Message* message) {
+		switch (message->type) {
+		case SKSE::MessagingInterface::kPreLoadGame:
+		case SKSE::MessagingInterface::kNewGame:
+			BeinzPlugin::Plugin::GetInstance()->Clear();
+			SPDLOG_INFO("Cleared mod index and search cache for game transition");
+			break;
+		default:
+			break;
+		}
 	}
 
 	extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
@@ -51,7 +63,7 @@ namespace {
 
 		v.UsesSigScanning();
 		v.UsesStructsPost629();
-		v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST_SE });
+		v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST_AE });
 
 		return v;
 	}();
@@ -69,6 +81,12 @@ namespace {
 		}
 
 		SKSE::Init(skse);
+
+		const auto* messaging = SKSE::GetMessagingInterface();
+		if (!messaging || !messaging->RegisterListener(OnSKSEMessage)) {
+			SPDLOG_ERROR("Failed to register SKSE messaging listener");
+			return false;
+		}
 
 		if (SKSE::GetPapyrusInterface() && SKSE::GetPapyrusInterface()->Register(BeinzPlugin::PapyrusRegistration::Register))
 			return true;
