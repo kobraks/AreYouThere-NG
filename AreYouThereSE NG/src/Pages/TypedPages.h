@@ -35,19 +35,22 @@ namespace BeinzPlugin {
 		}
 
 		RE::BSTArray<RE::BSFixedString> GetNames(TKey key) const {
-			if (auto it = Pages.find(key); it != Pages.end()) {
-				const auto& vec = it->second;
-
-				if (!m_Cached) {
-					m_CachedNames = CopyPage<RE::BSTArray<RE::BSFixedString>>(vec, m_PageSize, [](const auto& page) {
-						return page->GenerateName();
-					});
-					m_Cached = true;
-				}
-				return m_CachedNames;
+			const auto it = Pages.find(key);
+			if (it == Pages.end()) {
+				return GetEmptyNamesList();
 			}
 
-			return GetEmptyNamesList();
+			if (!m_Cached || m_CachedKey != key) {
+				const auto& pages = it->second;
+				m_CachedNames = CopyPage<RE::BSTArray<RE::BSFixedString>>(pages, pages.size(), [](const auto& page) {
+					return page->GenerateName();
+					});
+
+				m_CachedKey = key;
+				m_Cached = true;
+			}
+
+			return m_CachedNames;
 		}
 
 		std::size_t PageCount() const { return m_PageSize; }
@@ -65,6 +68,7 @@ namespace BeinzPlugin {
 	protected:
 		std::size_t m_PageSize;
 		mutable bool m_Cached = false;
+		mutable TKey m_CachedKey{};
 		mutable RE::BSTArray<RE::BSFixedString> m_CachedNames;
 	};
 }
