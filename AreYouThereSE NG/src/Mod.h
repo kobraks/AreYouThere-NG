@@ -48,13 +48,7 @@ namespace BeinzPlugin {
 		void ProcessActor(uint32_t id, const RE::TESFile &mod);
 		void ProcessActorBase(uint32_t id, const RE::TESFile &mod);
 
-		static uint32_t GetModIndex4MasterMod(uint32_t srcId, const RE::TESFile &mod, bool npc = false);
-
-		static bool IsWithin(uint32_t formID, uint32_t modID, bool isLight = false);
-		static uint16_t GetFormModID(uint32_t formID, bool isLight = false);
-
-		static constexpr uint32_t GetModID(uint16_t id, bool isLight = false);
-		static constexpr uint32_t GetModID(const RE::TESFile &file);
+		static uint32_t GetModIndex4MasterMod(uint32_t srcId, const RE::TESFile &mod);
 
 		uint32_t m_ID{};
 

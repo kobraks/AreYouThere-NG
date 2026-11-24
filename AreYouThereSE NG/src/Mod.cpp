@@ -17,23 +17,39 @@ namespace {
 	bool IsRootToCheck(uint32_t label) {
 		constexpr static BeinzPlugin::RecordType s_RootCheck[] = {BeinzPlugin::RecordType::CELL, BeinzPlugin::RecordType::WRLD, BeinzPlugin::RecordType::NPC_};
 
-		for (const auto &recordType : s_RootCheck) {
-			if (BeinzPlugin::IsRecordType(label, recordType))
-				return true;
-		}
-
-		return false;
+		return std::ranges::any_of(s_RootCheck, [label](auto recordType) {
+			return BeinzPlugin::IsRecordType(label, recordType);
+			});
 	}
 
 	bool IsTypeToCheck(BeinzPlugin::TESType type) {
 		constexpr static BeinzPlugin::RecordType s_ToCheck[] = { BeinzPlugin::RecordType::CELL, BeinzPlugin::RecordType::WRLD, BeinzPlugin::RecordType::ACHR, BeinzPlugin::RecordType::NPC_};
 
-		for(const auto recordType : s_ToCheck) {
-			if(BeinzPlugin::IsRecordType(type, recordType))
-				return true;
+		return std::ranges::any_of(s_ToCheck, [type](auto recordType) {
+			return BeinzPlugin::IsRecordType(type, recordType);
+			});
+	}
+
+	constexpr bool IsWithinMod(uint32_t formID, uint32_t modID, bool isLight = false) {
+		//return GetFormModID(formID, isLight) == modID;
+
+		const auto prefix = formID >> 24;
+
+		if (isLight) {
+			return prefix == 0xFE && ((formID >> 12) & 0xfffu) == modID;
 		}
 
-		return false;
+		return prefix == modID;
+	}
+
+	constexpr uint32_t GetModID(uint16_t id, bool isLight = false) {
+		if (isLight)
+			return (0xFE000 + id) << 12;
+		return id << 24;
+	}
+
+	constexpr uint32_t GetModID(const RE::TESFile& file) {
+		return file.IsLight() ? GetModID(file.smallFileCompileIndex, true) : GetModID(file.compileIndex);
 	}
 }
 
@@ -103,7 +119,7 @@ namespace BeinzPlugin {
 	}
 
 	bool Mod::Contains(uint32_t id) const {
-		if(IsWithin(id, m_ID, m_IsLight))
+		if(IsWithinMod(id, m_ID, m_IsLight))
 			return m_LookupTable.contains(id);
 
 		return false;
@@ -236,63 +252,47 @@ namespace BeinzPlugin {
 
 	void Mod::ProcessActor(uint32_t id, const RE::TESFile &mod) {
 		const auto newId = GetModIndex4MasterMod(id, mod);
+		if (newId == 0) {
+			return;
+		}
+
 		if (auto actor = std::make_shared<Actor>(newId); actor->IsValid()) {
 			m_LookupTable.emplace(newId);
-			m_Actors.emplace_back(actor);
-			
+			m_Actors.emplace_back(std::move(actor));
 		}
 	}
 
 	void Mod::ProcessActorBase(uint32_t id, const RE::TESFile &mod) {
-		const auto newId = GetModIndex4MasterMod(id, mod, true);
+		const auto newId = GetModIndex4MasterMod(id, mod);
+		if (newId == 0) {
+			return;
+		}
 
 		if (auto actor = std::make_shared<ActorBase>(newId); actor->IsValid()) {
 			m_LookupTable.emplace(newId);
-			m_ActorBases.emplace_back(actor);
+			m_ActorBases.emplace_back(std::move(actor));
 		}
 	}
 
-	uint32_t Mod::GetModIndex4MasterMod(uint32_t srcId, const RE::TESFile &mod, bool npc) {
-		auto *dataHandler = RE::TESDataHandler::GetSingleton();
+	uint32_t Mod::GetModIndex4MasterMod(uint32_t srcId, const RE::TESFile &mod) {
+		const uint32_t localFormID = srcId & 0x00FFFFFFu;
+		const uint32_t masterIndex = srcId >> 24;
 
-		const uint32_t formID  = (srcId & 0xFFFFFF);
-		const uint8_t modIdRef = (srcId & 0xFF000000) >> 24;
-
-		if(mod.compileIndex == 0)
-			return formID;
-
-		if(modIdRef >= mod.masterCount)
-			return GetModID(mod) + formID;
-
-		for(auto master : dataHandler->files) {
-			const auto refMod = mod.masterPtrs[modIdRef];
-
-			const std::string_view masterName(master->fileName);
-			const std::string_view refName(refMod->fileName);
-			if(masterName == refName)
-				return GetModID(mod) + formID;
+		if (mod.compileIndex == 0) {
+			return localFormID;
 		}
 
-		return GetModID(0xFF) + formID;
-	}
+		if (masterIndex >= mod.masterCount) {
+			return GetModID(mod) + localFormID;
+		}
 
-	bool Mod::IsWithin(uint32_t formID, uint32_t modID, bool isLight) {
-		return GetFormModID(formID, isLight) == modID;
-	}
+		const auto* master = mod.masterPtrs ? mod.masterPtrs[masterIndex] : nullptr;
+		if (!master) {
+			SPDLOG_WARN("Missing master {} for FormID {:08X} in \"{}\"", masterIndex, srcId, mod.fileName);
 
-	uint16_t Mod::GetFormModID(uint32_t formID, bool isLight) {
-		if(isLight)
-			return static_cast<uint16_t>(formID >> 12);
-		return formID >> 24;
-	}
+			return 0;
+		}
 
-	constexpr uint32_t Mod::GetModID(uint16_t id, bool isLight) {
-		if(isLight)
-			return (0xFE000 + id) << 12;
-		return id << 24;
-	}
-
-	constexpr uint32_t Mod::GetModID(const RE::TESFile &file) {
-		return file.IsLight() ? GetModID(file.smallFileCompileIndex, true) : GetModID(file.compileIndex);
+		return GetModID(*master) + localFormID;
 	}
 }
