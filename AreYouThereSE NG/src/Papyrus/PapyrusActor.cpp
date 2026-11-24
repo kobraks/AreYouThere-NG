@@ -10,6 +10,8 @@
 #include "Papyrus/PapyrusHelper.h"
 #include "Papyrus/PapyrusCommon.h"
 
+#include <algorithm>
+
 namespace BeinzPlugin::Papyrus {
 	uint32_t GetTotalActors(RE::StaticFunctionTag*) {
 		return static_cast<uint32_t>(Plugin::GetInstance()->ActorCount);
@@ -49,15 +51,18 @@ namespace BeinzPlugin::Papyrus {
 
 	uint32_t GetModFromActor(RE::StaticFunctionTag*, RE::Actor* actor) {
 		if (actor) {
+			const auto id = actor->formID;
+
 			SPDLOG_INFO("Looking for mod having an actor: {:08X}", actor->formID);
 
-			std::size_t i = 0;
-			for (const auto& mod : Plugin::GetInstance()->Mods) {
-				if (mod->Contains(actor->formID)) {
-					SPDLOG_DEBUG("Mod \"{}\", has actor: {:08X}", mod->CombinedName(), actor->formID);
-					return static_cast<uint32_t>(i);
-				}
-				++i;
+			const auto& mods = Plugin::GetInstance()->Mods;
+			const auto it = std::ranges::find_if(mods, [id](const auto& mod) {
+				return mod->Contains(id);
+				});
+
+			if (it != mods.end()) {
+				SPDLOG_DEBUG("Mod \"{}\", has actor: {:08X}", (*it)->CombinedName(), id);
+				return static_cast<uint32_t>(it - mods.begin());
 			}
 		}
 
