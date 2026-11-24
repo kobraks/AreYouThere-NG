@@ -434,8 +434,8 @@ event OnPageReset(string page)
 			int loop = 0
 
 			if (m_EntriesFound != 0)
-				int[] modIndices = BeinzPluginScript.FindCharactersByNameModIndices(m_SearchIndex)
-				string[] modNames = BeinzPluginScript.FindCharactersByNameModNames(m_SearchIndex)
+				int[] modIndices = BeinzPluginScript.GetFoundModIndicesInPage(m_SearchIndex, m_FoundPage)
+				string[] modNames = BeinzPluginScript.GetFoundModNamesInPage(m_SearchIndex, m_FoundPage)
 
 				int currentMod = 0
 				bool shown = false;
@@ -443,10 +443,10 @@ event OnPageReset(string page)
 
 				while ((loop < m_ActorsPerPage) && (actorIndex < m_EntriesFound))
 					Actor current = m_ActorsFound[actorIndex]
-					if ((shown == false) || (currentMod != modIndices[actorIndex]))
+					if ((shown == false) || (currentMod != modIndices[loop]))
 						shown = true
-						currentMod = modIndices[actorIndex]
-						AddTextOption(modNames[actorIndex], "", OPTION_FLAG_DISABLED)
+						currentMod = modIndices[loop]
+						AddTextOption(modNames[loop], "", OPTION_FLAG_DISABLED)
 					endIf
 
 					m_IdTextFindActors[loop] = AddMenuOption("[" + BeinzPluginScript.IntToHexString(current.GetFormID()) + "]" + current.GetActorBase().GetName(), m_Actions[0], 0)
@@ -664,11 +664,12 @@ event OnOptionMenuAccept(int option, int index)
 		endIf
 
 	elseIf ((Pages[MCMPage_Find] == CurrentPage) && (index != 0))
+		int pageAdd = m_ActorsPerPage * m_FoundPage
 		int loop = 0
-		while ((loop < m_ActorsPerPage) && (loop < m_EntriesFound))
-			int pageAdd = m_ActorsPerPage * m_FoundPage
-			int actorIndex = pageAdd + loop
 
+		while ((loop < m_ActorsPerPage) && (pageAdd + loop < m_EntriesFound))
+			int actorIndex = pageAdd + loop
+			
 			if (m_IdTextFindActors[loop] == option)
 				DoAction(m_ActorsFound[actorIndex], index)
 

@@ -8,7 +8,7 @@
 
 namespace BeinzPlugin {
 	std::shared_ptr<Mod> GetMod(uint32_t modIndex) {
-		auto mods = Plugin::GetInstance()->Mods;
+		const auto& mods = Plugin::GetInstance()->Mods;
 
 		if (modIndex < mods.size()) {
 			const auto mod = mods[modIndex];

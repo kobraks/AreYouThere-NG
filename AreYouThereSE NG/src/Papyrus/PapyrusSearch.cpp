@@ -5,10 +5,37 @@
 #include "Mod.h"
 #include "Utils.h"
 #include "FindCharacter.h"
+#include "Plugin.h"
 
 #include "Pages/FoundActorPages.h"
 
 #include "Papyrus/PapyrusCommon.h"
+
+namespace {
+	template <typename T, typename Project>
+	RE::BSTArray<T> CopySearchPage(int searchIndex, int page, Project project) {
+		RE::BSTArray<T> items;
+		if (searchIndex < 0 || page < 0) {
+			return items;
+		}
+
+		const auto& results = BeinzPlugin::FindCharacter::GetInstance()->GetSearchResult(static_cast<std::size_t>(searchIndex));
+		const auto start = static_cast<std::size_t>(page) * BeinzPlugin::PAGE_ACTORS;
+		
+		if (start >= results.size()) {
+			return items;
+		}
+
+		const auto count = std::min(BeinzPlugin::PAGE_ACTORS, results.size() - start);
+		items.reserve(static_cast<typename RE::BSTArray<T>::size_type>(count));
+
+		for (std::size_t row = 0; row < count; ++row) {
+			items.push_back(project(results[start + row]));
+		}
+
+		return items;
+	}
+}
 
 namespace BeinzPlugin::Papyrus {
 	uint32_t FindCharactersByName(RE::StaticFunctionTag*, RE::BSFixedString name) {
@@ -85,6 +112,18 @@ namespace BeinzPlugin::Papyrus {
 		return FoundActorPages::GetInstance()->GetNames(searchIndex);
 	}
 
+	RE::BSTArray<RE::BSFixedString> GetFoundModNamesInPage(RE::StaticFunctionTag*, int searchIndex, int page) {
+		return CopySearchPage<RE::BSFixedString>(searchIndex, page, [](const ActorSearchResult& result) {
+			return static_cast<RE::BSFixedString>(result.Mod->CombinedName().data());
+			});
+	}
+
+	RE::BSTArray<uint32_t> GetFoundModIndicesInPage(RE::StaticFunctionTag*, int searchIndex, int page) {
+		return CopySearchPage<uint32_t>(searchIndex, page, [](const ActorSearchResult& result) {
+			return static_cast<uint32_t>(result.ModIndex);
+			});
+	}
+
 	void ClearSearchCache(RE::StaticFunctionTag*) {
 		FindCharacter::Clear();
 		FoundActorPages::GetInstance()->Clear();
@@ -96,6 +135,9 @@ namespace BeinzPlugin::Papyrus {
 		REGISTER_FUNCTION(FindCharactersByNameModName);
 		REGISTER_FUNCTION(FindCharactersByNameModNames);
 		REGISTER_FUNCTION(FindCharactersByNameModIndices);
+		REGISTER_FUNCTION(GetFoundModNamesInPage);
+		REGISTER_FUNCTION(GetFoundModIndicesInPage);
+
 		REGISTER_FUNCTION(GenerateFoundPages);
 		REGISTER_FUNCTION(ClearSearchCache);
 

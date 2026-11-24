@@ -63,6 +63,9 @@ string[] Function FindCharactersByNameModNames(int searchIndex) global native
 
 string[] Function GenerateFoundPages(int searchIndex) global native
 
+string[] Function GetFoundModNamesInPage(int searchIndex, int page) global native
+int[] Function GetFoundModIndicesInPage(int searchIndex, int page) global native
+
 string Function GetModName(int index) global native
 
 Function ClearSearchCache() global native
